@@ -15,6 +15,8 @@ import { CustomSelect } from './components/CustomSelect';
 import { v4 as uuidv4 } from 'uuid';
 import { generateCSVWithTimestamp, generateCSVWithTimestampForSelected } from './utils/csvExport';
 import { importPromptsFromCSV, handleCSVFileUpload, ImportResult } from './utils/csvImport';
+import { searchByQuery, GroupedSearchResults } from './utils/searchPrompts';
+import { GroupedSearchResultsComponent } from './components/GroupedSearchResults';
 
 // Initial Data
 const INITIAL_CATEGORIES: Category[] = [
@@ -73,6 +75,7 @@ const App: React.FC = () => {
   const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
   const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
   const [expandedPrompt, setExpandedPrompt] = useState<Prompt | null>(null);
+  const [groupedSearchResults, setGroupedSearchResults] = useState<GroupedSearchResults>({ categories: [], tags: [], prompts: [] });
 
   // Handle Escape key to clear selection
   useEffect(() => {
@@ -86,6 +89,12 @@ const App: React.FC = () => {
   }, [selectedPromptIds.size]);
 
   // Derived State
+  // Update grouped search results whenever search query, prompts, or categories change
+  useMemo(() => {
+    const results = searchByQuery(searchQuery, prompts, categories);
+    setGroupedSearchResults(results);
+  }, [searchQuery, prompts, categories]);
+
   const tagCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     
@@ -140,6 +149,19 @@ const App: React.FC = () => {
       }
     });
   }, [prompts, selectedCategoryId, selectedTag, searchQuery, showFavoritesOnly, sortOption, categories]);
+
+  // Handle search result category selection
+  const handleSearchCategorySelect = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setSelectedTag(null);
+    setSearchQuery(''); // Clear search to show full category results
+  };
+
+  // Handle search result tag selection
+  const handleSearchTagSelect = (tag: string) => {
+    setSelectedTag(tag);
+    setSearchQuery(''); // Clear search to show full tag results
+  };
 
   const getHeaderTitle = () => {
     if (selectedCategoryId === 'uncategorized') return 'Uncategorized';
@@ -220,11 +242,13 @@ const App: React.FC = () => {
 
   const handleTagClick = (tag: string | null) => {
     setSelectedTag(current => current === tag ? null : tag);
+    setSearchQuery(''); // Clear search when changing tags
   };
 
   const handleCategorySelect = (id: string | null) => {
     setSelectedCategoryId(id);
     setSelectedTag(null); // Clear tag filter when switching categories
+    setSearchQuery(''); // Clear search when changing categories
   };
 
   // Template and Selection Handlers
@@ -238,10 +262,12 @@ const App: React.FC = () => {
       }
       return next;
     });
+    setSearchQuery(''); // Clear search when selecting prompts
   };
 
   const clearSelection = () => {
     setSelectedPromptIds(new Set());
+    setSearchQuery(''); // Clear search when clearing selection
   };
 
   const handleTemplateRequest = (prompt: Prompt) => {
@@ -251,6 +277,7 @@ const App: React.FC = () => {
 
   const handleExpandPrompt = (prompt: Prompt) => {
     setExpandedPrompt(prompt);
+    setSearchQuery(''); // Clear search when expanding a prompt from results
   };
 
   const handleBulkDelete = () => {
@@ -597,6 +624,17 @@ const App: React.FC = () => {
         onExport={handleBulkExport}
         onClearSelection={clearSelection}
       />
+
+      {searchQuery.trim() && (
+        <GroupedSearchResultsComponent
+          results={groupedSearchResults}
+          searchQuery={searchQuery}
+          categories={categories}
+          onSelectCategory={handleSearchCategorySelect}
+          onSelectTag={handleSearchTagSelect}
+          onSelectPrompt={handleExpandPrompt}
+        />
+      )}
     </div>
   );
 };
