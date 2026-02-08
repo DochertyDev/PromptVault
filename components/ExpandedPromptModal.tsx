@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Copy, Check, Edit } from 'lucide-react';
 import { Prompt, Category } from '../types';
+import { TagBadge } from './TagBadge';
 
 interface ExpandedPromptModalProps {
   isOpen: boolean;
@@ -106,12 +107,7 @@ export function ExpandedPromptModal({
               <h3 className="text-sm font-medium text-zinc-300 mb-3">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {prompt.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-accent/10 text-accent border border-accent/30"
-                  >
-                    {tag}
-                  </span>
+                  <TagBadge key={tag} label={tag} size="lg" />
                 ))}
               </div>
             </div>

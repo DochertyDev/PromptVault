@@ -203,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <Tag className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{tag}</span>
                   </div>
-                  <span className="text-xs bg-black-200 text-zinc-500 px-1.5 rounded-full">
+                  <span className="text-xs bg-black-200 text-zinc-500 px-2 py-1 rounded">
                     {tagCounts[tag]}
                   </span>
                 </button>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Prompt, Category, ViewMode } from '../types';
 import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText, Maximize2 } from 'lucide-react';
+import { TagBadge } from './TagBadge';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -73,7 +74,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
                 e.stopPropagation();
                 onSelect(prompt.id);
               }}
-              className={`w-5 h-5 rounded border-2 transition-all ${
+              className={`w-4 h-4 rounded border-2 transition-all ${
                 isSelected
                   ? 'border-accent bg-accent flex items-center justify-center'
                   : 'border-gray-600 hover:border-accent'
@@ -115,14 +116,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
             <button 
               key={tag} 
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border transition-colors ${
-                selectedTag === tag 
-                ? 'bg-accent text-black border-accent' 
-                : 'bg-accent-light text-accent border-accent/20 hover:bg-accent/20 hover:border-accent/50'
-              }`}
             >
-              <Tag className="w-3 h-3 mr-1" />
-              {tag}
+              <TagBadge
+                label={tag}
+                size="sm"
+                variant={selectedTag === tag ? 'default' : 'outline'}
+              />
             </button>
           ))}
         </div>
@@ -185,7 +184,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
                  e.stopPropagation();
                  onSelect(prompt.id);
                }}
-               className={`w-5 h-5 rounded border-2 transition-all flex-shrink-0 ${
+               className={`w-4 h-4 rounded border-2 transition-all flex-shrink-0 ${
                  isSelected
                    ? 'border-accent bg-accent flex items-center justify-center'
                    : 'border-gray-600 hover:border-accent'
@@ -257,14 +256,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
             <button 
               key={tag} 
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium border transition-colors ${
-                selectedTag === tag 
-                ? 'bg-accent text-black border-accent shadow-sm shadow-accent/50' 
-                : 'bg-accent-light text-accent border-accent/20 hover:bg-accent/20 hover:border-accent/50'
-              }`}
             >
-              <Tag className="w-3 h-3 mr-1" />
-              {tag}
+              <TagBadge
+                label={tag}
+                size="md"
+                variant={selectedTag === tag ? 'default' : 'outline'}
+              />
             </button>
           ))}
           {prompt.tags.length > 3 && (

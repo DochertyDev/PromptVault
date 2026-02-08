@@ -2,6 +2,7 @@ import React from 'react';
 import { FolderOpen, Tag, FileText, Search } from 'lucide-react';
 import { Prompt, Category } from '../types';
 import { GroupedSearchResults } from '../utils/searchPrompts';
+import { TagBadge } from './TagBadge';
 
 interface GroupedSearchResultsProps {
   results: GroupedSearchResults;
@@ -55,7 +56,7 @@ export function GroupedSearchResultsComponent({
               >
                 <div className="flex items-center justify-between">
                   <FolderOpen className="w-6 h-6 text-accent flex-shrink-0" />
-                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">+</span>
                 </div>
                 <h3 className="text-base font-medium text-white mt-3 group-hover:text-accent transition-colors">
                   {category.name}
@@ -87,7 +88,7 @@ export function GroupedSearchResultsComponent({
                     <span className="inline-block w-3 h-3 rounded-full bg-accent"></span>
                     <span className="text-sm text-zinc-400 group-hover:text-accent transition-colors">#</span>
                   </div>
-                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">+</span>
                 </div>
                 <h3 className="text-base font-medium text-white mt-3 group-hover:text-accent transition-colors break-words">
                   {tag}
@@ -118,7 +119,7 @@ export function GroupedSearchResultsComponent({
                   <h3 className="text-base font-semibold text-white group-hover:text-accent transition-colors flex-1 line-clamp-2">
                     {prompt.title}
                   </h3>
-                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">→</span>
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">+</span>
                 </div>
                 
                 <p className="text-sm text-zinc-400 line-clamp-2 mb-3 flex-1">
@@ -128,12 +129,7 @@ export function GroupedSearchResultsComponent({
                 {prompt.tags.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-auto pt-3 border-t border-black-300">
                     {prompt.tags.slice(0, 2).map(tag => (
-                      <span
-                        key={tag}
-                        className="inline-block px-2 py-1 rounded text-[10px] bg-accent/10 text-accent border border-accent/20"
-                      >
-                        {tag}
-                      </span>
+                      <TagBadge key={tag} label={tag} size="sm" />
                     ))}
                     {prompt.tags.length > 2 && (
                       <span className="text-[10px] text-zinc-500 py-1">
