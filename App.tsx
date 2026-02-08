@@ -10,7 +10,8 @@ import { BulkTagsModal } from './components/BulkTagsModal';
 import { BulkMoveModal } from './components/BulkMoveModal';
 import useIndexedDB from './hooks/useIndexedDB';
 import { Prompt, Category, SortOption } from './types';
-import { Plus, Search, LayoutGrid, List as ListIcon, Star, Filter, XCircle, ArrowDownUp, Download, Upload } from 'lucide-react';
+import { Plus, Search, LayoutGrid, List as ListIcon, Star, Filter, XCircle, Download, Upload } from 'lucide-react';
+import { CustomSelect } from './components/CustomSelect';
 import { v4 as uuidv4 } from 'uuid';
 import { generateCSVWithTimestamp, generateCSVWithTimestampForSelected } from './utils/csvExport';
 import { importPromptsFromCSV, handleCSVFileUpload, ImportResult } from './utils/csvImport';
@@ -406,20 +407,18 @@ const App: React.FC = () => {
               />
             </div>
 
-            <div className="relative">
-              <ArrowDownUp className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as SortOption)}
-                className="appearance-none w-40 bg-black-200 border border-black-300 rounded-lg pl-10 pr-8 py-2 text-sm text-zinc-200 focus:ring-2 focus:ring-accent outline-none transition-all cursor-pointer"
-                title="Sort prompts"
-              >
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="az">A-Z</option>
-                <option value="za">Z-A</option>
-              </select>
-            </div>
+            <CustomSelect
+              value={sortOption}
+              onChange={(value) => setSortOption(value as SortOption)}
+              options={[
+                { value: 'newest', label: 'Newest' },
+                { value: 'oldest', label: 'Oldest' },
+                { value: 'az', label: 'A-Z' },
+                { value: 'za', label: 'Z-A' }
+              ]}
+              className="w-40"
+              title="Sort prompts"
+            />
             
             <div className="flex items-center bg-black-200 border border-black-300 rounded-lg p-1">
                 <button

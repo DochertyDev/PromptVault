@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Prompt, Category } from '../types';
 import { X, Save } from 'lucide-react';
+import { CustomSelect } from './CustomSelect';
 
 interface EditorModalProps {
   isOpen: boolean;
@@ -94,17 +95,18 @@ const EditorModal: React.FC<EditorModalProps> = ({
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-300">Category</label>
-              <select
+              <CustomSelect
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
-                title="Select category"
-              >
-                <option value="" disabled>Select a category</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
+                onChange={(value) => setCategoryId(value)}
+                options={[
+                  { value: '', label: 'Select a category' },
+                  ...categories.map(cat => ({
+                    value: cat.id,
+                    label: cat.name
+                  }))
+                ]}
+                placeholder="Select a category"
+              />
             </div>
           </div>
 
