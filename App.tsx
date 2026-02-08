@@ -4,6 +4,7 @@ import PromptCard from './components/PromptCard';
 import EditorModal from './components/EditorModal';
 import ImportResultModal from './components/ImportResultModal';
 import { TemplateVariableModal } from './components/TemplateVariableModal';
+import { ExpandedPromptModal } from './components/ExpandedPromptModal';
 import { BulkActionsBar } from './components/BulkActionsBar';
 import { BulkTagsModal } from './components/BulkTagsModal';
 import { BulkMoveModal } from './components/BulkMoveModal';
@@ -70,6 +71,7 @@ const App: React.FC = () => {
   const [templateToFill, setTemplateFill] = useState<Prompt | null>(null);
   const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
   const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
+  const [expandedPrompt, setExpandedPrompt] = useState<Prompt | null>(null);
 
   // Handle Escape key to clear selection
   useEffect(() => {
@@ -244,6 +246,10 @@ const App: React.FC = () => {
   const handleTemplateRequest = (prompt: Prompt) => {
     setTemplateFill(prompt);
     setShowTemplateVariableModal(true);
+  };
+
+  const handleExpandPrompt = (prompt: Prompt) => {
+    setExpandedPrompt(prompt);
   };
 
   const handleBulkDelete = () => {
@@ -498,6 +504,7 @@ const App: React.FC = () => {
                     isSelected={selectedPromptIds.has(prompt.id)}
                     onSelect={togglePromptSelection}
                     onTemplateRequest={handleTemplateRequest}
+                    onExpand={handleExpandPrompt}
                   />
               </div>
             ))}
@@ -544,6 +551,16 @@ const App: React.FC = () => {
         onSubmit={() => {
           // No additional action needed; copying happens in the modal
         }}
+      />
+
+      <ExpandedPromptModal
+        isOpen={expandedPrompt !== null}
+        prompt={expandedPrompt}
+        category={expandedPrompt ? categories.find(c => c.id === expandedPrompt.categoryId) : undefined}
+        onClose={() => setExpandedPrompt(null)}
+        onEdit={handleEditPrompt}
+        onTemplateRequest={handleTemplateRequest}
+        onCopy={copyToClipboard}
       />
 
       <BulkTagsModal
