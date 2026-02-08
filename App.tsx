@@ -1,11 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import PromptCard from './components/PromptCard';
 import EditorModal from './components/EditorModal';
-import useLocalStorage from './hooks/useLocalStorage';
+import ImportResultModal from './components/ImportResultModal';
+import useIndexedDB from './hooks/useIndexedDB';
 import { Prompt, Category, SortOption } from './types';
-import { Plus, Search, LayoutGrid, List as ListIcon, Star, Filter, XCircle, ArrowDownUp } from 'lucide-react';
+import { Plus, Search, LayoutGrid, List as ListIcon, Star, Filter, XCircle, ArrowDownUp, Download, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { generateCSVWithTimestamp } from './utils/csvExport';
+import { importPromptsFromCSV, handleCSVFileUpload, ImportResult } from './utils/csvImport';
 
 // Initial Data
 const INITIAL_CATEGORIES: Category[] = [
@@ -40,8 +43,12 @@ const INITIAL_PROMPTS: Prompt[] = [
 
 const App: React.FC = () => {
   // State
-  const [categories, setCategories] = useLocalStorage<Category[]>('pv_categories', INITIAL_CATEGORIES);
-  const [prompts, setPrompts] = useLocalStorage<Prompt[]>('pv_prompts', INITIAL_PROMPTS);
+  const [categories, setCategories] = useIndexedDB<Category[]>('pv_categories', INITIAL_CATEGORIES);
+  const [prompts, setPrompts] = useIndexedDB<Prompt[]>('pv_prompts', INITIAL_PROMPTS);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [showImportResult, setShowImportResult] = useState(false);
+  const [importedPromptsCount, setImportedPromptsCount] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -191,6 +198,47 @@ const App: React.FC = () => {
     setSelectedTag(null); // Clear tag filter when switching categories
   };
 
+  const handleExportCSV = () => {
+    try {
+      generateCSVWithTimestamp(prompts, categories);
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      alert('Failed to export prompts. Please try again.');
+    }
+  };
+
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const csvContent = await handleCSVFileUpload(file);
+      const { prompts: importedPrompts, categories: updatedCategories, result } = importPromptsFromCSV(csvContent, categories);
+      
+      // Update state
+      setCategories(updatedCategories);
+      setPrompts([...prompts, ...importedPrompts]);
+      setImportResult(result);
+      setImportedPromptsCount(importedPrompts.length);
+      setShowImportResult(true);
+    } catch (error) {
+      console.error('Error importing CSV:', error);
+      setImportResult({
+        success: false,
+        promptsImported: 0,
+        errors: [`Error reading file: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        warnings: []
+      });
+      setImportedPromptsCount(0);
+      setShowImportResult(true);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="flex min-h-screen w-full bg-black text-zinc-100">
       <Sidebar 
@@ -278,16 +326,43 @@ const App: React.FC = () => {
                 <Star className="w-5 h-5" fill={showFavoritesOnly ? "currentColor" : "none"} />
             </button>
 
-            <button
-              onClick={() => {
-                setEditingPrompt(null);
-                setIsEditorOpen(true);
-              }}
-              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden md:inline">New</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2 rounded-lg font-medium transition-colors border border-black-300"
+                title="Export prompts as CSV"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden md:inline text-sm">Export</span>
+              </button>
+              
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2 rounded-lg font-medium transition-colors border border-black-300"
+                title="Import prompts from CSV"
+              >
+                <Upload className="w-4 h-4" />
+                <span className="hidden md:inline text-sm">Import</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleImportCSV}
+                className="hidden"
+              />
+              
+              <button
+                onClick={() => {
+                  setEditingPrompt(null);
+                  setIsEditorOpen(true);
+                }}
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden md:inline">New</span>
+              </button>
+            </div>
           </div>
         </header>
 
@@ -333,6 +408,13 @@ const App: React.FC = () => {
         categories={categories}
         initialPrompt={editingPrompt}
         initialCategoryId={selectedCategoryId}
+      />
+
+      <ImportResultModal
+        isOpen={showImportResult}
+        onClose={() => setShowImportResult(false)}
+        result={importResult}
+        promptsImported={importedPromptsCount}
       />
     </div>
   );
