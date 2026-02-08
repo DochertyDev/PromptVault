@@ -129,21 +129,34 @@ const App: React.FC = () => {
   };
 
   const handleSavePrompt = (promptData: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
-    if (promptData.id) {
-      // Update existing
-      setPrompts(prompts.map(p => 
-        p.id === promptData.id 
-          ? { ...p, ...promptData, updatedAt: Date.now() } 
-          : p
-      ));
+    if (promptData.id && typeof promptData.id === 'string') {
+      // Update existing - be explicit about what we're updating
+      setPrompts(prompts.map(p => {
+        if (p.id === promptData.id) {
+          return {
+            id: p.id,
+            title: promptData.title,
+            content: promptData.content,
+            categoryId: promptData.categoryId,
+            tags: promptData.tags,
+            isFavorite: promptData.isFavorite,
+            createdAt: p.createdAt,
+            updatedAt: Date.now()
+          };
+        }
+        return p;
+      }));
     } else {
       // Create new
       const newPrompt: Prompt = {
         id: uuidv4(),
-        ...promptData,
+        title: promptData.title,
+        content: promptData.content,
+        categoryId: promptData.categoryId,
+        tags: promptData.tags,
+        isFavorite: promptData.isFavorite,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
-        isFavorite: false
+        updatedAt: Date.now()
       };
       setPrompts([newPrompt, ...prompts]);
     }
