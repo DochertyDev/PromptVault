@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install and Build 🔧
+        env:
+          GITHUB_PAGES: 'true'
         run: |
           npm install
           npm run build
