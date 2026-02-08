@@ -77,7 +77,7 @@ export function TemplateVariableModal({
   const allFilled = varNames.every((v) => variables[v]?.trim());
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="bg-black-100 border border-black-300 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-black-300">
