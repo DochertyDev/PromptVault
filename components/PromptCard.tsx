@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Prompt, Category, ViewMode } from '../types';
-import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText, ChevronUp } from 'lucide-react';
+import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText, Maximize2 } from 'lucide-react';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -134,7 +134,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
               className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
               title="Expand"
             >
-              <ChevronUp className="w-4 h-4" />
+              <Maximize2 className="w-4 h-4" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
@@ -220,7 +220,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
             className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
             title="Expand"
           >
-            <ChevronUp className="w-4 h-4" />
+            <Maximize2 className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Copy, Check, Edit, ChevronUp } from 'lucide-react';
+import { X, Copy, Check, Edit } from 'lucide-react';
 import { Prompt, Category } from '../types';
 
 interface ExpandedPromptModalProps {
@@ -130,13 +130,6 @@ export function ExpandedPromptModal({
 
         {/* Footer */}
         <div className="flex gap-3 p-6 border-t border-black-300 flex-shrink-0 bg-black-300/30">
-          <button
-            onClick={onClose}
-            className="flex items-center gap-2 px-4 py-2 text-gray-300 border border-gray-600 rounded hover:border-gray-500 hover:text-white transition"
-          >
-            <ChevronUp className="w-4 h-4" />
-            Collapse
-          </button>
           <div className="flex-1" />
           <button
             onClick={handleEdit}
