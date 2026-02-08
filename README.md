@@ -49,7 +49,7 @@ PromptVault
 
 ## 📄 Overview
 
-PromptVault is a modern, client-side web application designed to help users efficiently manage and organize their collection of AI prompts, creative writing snippets, code examples, or any text-based content. Built with a focus on speed and user experience, it provides a centralized and intuitive interface to store, categorize, tag, search, and retrieve your valuable prompts. All data is securely stored locally in your browser, ensuring privacy and offline accessibility.
+PromptVault is a client-side web application designed to help users efficiently manage and organize their collection of AI prompts, creative writing snippets, code examples, or any text-based content. Built with a focus on speed and user experience, it provides a centralized and intuitive interface to store, categorize, tag, search, and retrieve your valuable prompts. All data is securely stored locally in your browser, ensuring privacy and offline accessibility.
 
 This tool is ideal for developers, writers, marketers, and anyone who frequently uses or collects text prompts and needs a robust system for personal organization without reliance on external services.
 
