@@ -372,116 +372,125 @@ const App: React.FC = () => {
 
       <main className="flex-1 ml-64 p-8 max-w-[1920px] pb-24">
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-white">{getHeaderTitle()}</h1>
-              {selectedTag && (
-                <div className="flex items-center gap-1 px-3 py-1 bg-accent-light text-accent rounded-full text-sm font-medium border border-accent/30">
-                  <Filter className="w-3 h-3" />
-                  <span>{selectedTag}</span>
-                  <button 
-                    onClick={() => setSelectedTag(null)}
-                    className="ml-1 hover:text-white"
-                    title="Clear tag filter"
-                  >
-                    <XCircle className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+        <header className="mb-8">
+          {/* Top Row: Title and Primary Action */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold text-white">{getHeaderTitle()}</h1>
+                {selectedTag && (
+                  <div className="flex items-center gap-1 px-3 py-1 bg-accent-light text-accent rounded-full text-sm font-medium border border-accent/30">
+                    <Filter className="w-3 h-3" />
+                    <span>{selectedTag}</span>
+                    <button 
+                      onClick={() => setSelectedTag(null)}
+                      className="ml-1 hover:text-white"
+                      title="Clear tag filter"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <p className="text-zinc-400 text-sm">
+                {filteredPrompts.length} {filteredPrompts.length === 1 ? 'prompt' : 'prompts'} found
+              </p>
             </div>
-            <p className="text-zinc-400 text-sm">
-              {filteredPrompts.length} {filteredPrompts.length === 1 ? 'prompt' : 'prompts'} found
-            </p>
+            
+            <button
+              onClick={() => {
+                setEditingPrompt(null);
+                setIsEditorOpen(true);
+              }}
+              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20 flex-shrink-0"
+            >
+              <Plus className="w-5 h-5" />
+              <span>New</span>
+            </button>
           </div>
 
+          {/* Controls Row: Search, Sort, View, Favorites, Export, Import */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
+            {/* Search Bar */}
+            <div className="relative flex-1 min-w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search prompts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-48 bg-black-200 border border-black-300 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-200 focus:ring-2 focus:ring-accent outline-none transition-all"
+                className="w-full bg-black-200 border border-black-300 rounded-lg pl-10 pr-4 py-2.5 text-sm text-zinc-200 focus:ring-2 focus:ring-accent outline-none transition-all"
               />
             </div>
 
-            <CustomSelect
-              value={sortOption}
-              onChange={(value) => setSortOption(value as SortOption)}
-              options={[
-                { value: 'newest', label: 'Newest' },
-                { value: 'oldest', label: 'Oldest' },
-                { value: 'az', label: 'A-Z' },
-                { value: 'za', label: 'Z-A' }
-              ]}
-              className="w-40"
-              title="Sort prompts"
-            />
-            
-            <div className="flex items-center bg-black-200 border border-black-300 rounded-lg p-1">
-                <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
-                    title="Grid view"
-                >
-                    <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
-                    title="List view"
-                >
-                    <ListIcon className="w-4 h-4" />
-                </button>
+            {/* Sort Dropdown */}
+            <div className="w-40">
+              <CustomSelect
+                value={sortOption}
+                onChange={(value) => setSortOption(value as SortOption)}
+                options={[
+                  { value: 'newest', label: 'Newest' },
+                  { value: 'oldest', label: 'Oldest' },
+                  { value: 'az', label: 'A-Z' },
+                  { value: 'za', label: 'Z-A' }
+                ]}
+                title="Sort prompts"
+              />
             </div>
 
-             <button
-                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={`p-2 rounded-lg border transition-colors ${showFavoritesOnly ? 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400' : 'bg-black-200 border-black-300 text-zinc-400 hover:text-white'}`}
-                title="Show Favorites"
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-black-200 border border-black-300 rounded-lg p-1 flex-shrink-0">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
+                title="Grid view"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
+                title="List view"
+              >
+                <ListIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Favorites Toggle */}
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={`p-2.5 rounded-lg border transition-colors flex-shrink-0 ${showFavoritesOnly ? 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400' : 'bg-black-200 border-black-300 text-zinc-400 hover:text-white'}`}
+              title="Show Favorites"
             >
-                <Star className="w-5 h-5" fill={showFavoritesOnly ? "currentColor" : "none"} />
+              <Star className="w-5 h-5" fill={showFavoritesOnly ? "currentColor" : "none"} />
             </button>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportCSV}
-                className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2 rounded-lg font-medium transition-colors border border-black-300"
-                title="Export prompts as CSV"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden md:inline text-sm">Export</span>
-              </button>
-              
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2 rounded-lg font-medium transition-colors border border-black-300"
-                title="Import prompts from CSV"
-              >
-                <Upload className="w-4 h-4" />
-                <span className="hidden md:inline text-sm">Import</span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleImportCSV}
-                className="hidden"
-              />
-              
-              <button
-                onClick={() => {
-                  setEditingPrompt(null);
-                  setIsEditorOpen(true);
-                }}
-                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20"
-              >
-                <Plus className="w-5 h-5" />
-                <span className="hidden md:inline">New</span>
-              </button>
-            </div>
+            {/* Export Button */}
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2.5 rounded-lg font-medium transition-colors border border-black-300 flex-shrink-0"
+              title="Export prompts as CSV"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm">Export</span>
+            </button>
+
+            {/* Import Button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-3 py-2.5 rounded-lg font-medium transition-colors border border-black-300 flex-shrink-0"
+              title="Import prompts from CSV"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm">Import</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+            />
           </div>
         </header>
 
