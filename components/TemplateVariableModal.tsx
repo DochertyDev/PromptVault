@@ -61,6 +61,19 @@ export function TemplateVariableModal({
     onSubmit(filledContent);
   };
 
+  const handleCopyAsIs = () => {
+    // Copy template without replacing variables
+    navigator.clipboard.writeText(content).then(() => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        onClose();
+      }, 1500);
+    });
+
+    onSubmit(content);
+  };
+
   const allFilled = varNames.every((v) => variables[v]?.trim());
 
   return (
@@ -120,6 +133,13 @@ export function TemplateVariableModal({
             className="flex-1 px-4 py-2 text-gray-300 border border-gray-600 rounded hover:border-gray-500 hover:text-white transition"
           >
             Cancel
+          </button>
+          <button
+            onClick={handleCopyAsIs}
+            className="flex-1 px-4 py-2 bg-gray-700 text-white rounded font-medium hover:bg-gray-600 transition flex items-center justify-center gap-2"
+          >
+            <Copy className="w-4 h-4" />
+            Copy as-is
           </button>
           <button
             onClick={handleSubmit}

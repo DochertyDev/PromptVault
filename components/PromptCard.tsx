@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Prompt, Category, ViewMode } from '../types';
-import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText } from 'lucide-react';
+import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText, ChevronUp } from 'lucide-react';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -15,6 +15,7 @@ interface PromptCardProps {
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   onTemplateRequest?: (prompt: Prompt) => void;
+  onExpand?: (prompt: Prompt) => void;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ 
@@ -30,6 +31,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
   isSelected = false,
   onSelect,
   onTemplateRequest,
+  onExpand,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -128,6 +130,13 @@ const PromptCard: React.FC<PromptCardProps> = ({
         <div className="flex items-center gap-1 flex-shrink-0 pl-4 border-l border-black-300/50">
            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-2">
             <button
+              onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
+              className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
+              title="Expand"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
               onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
               className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
               title="Edit"
@@ -206,6 +215,13 @@ const PromptCard: React.FC<PromptCardProps> = ({
            </button>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
+            className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
+            title="Expand"
+          >
+            <ChevronUp className="w-4 h-4" />
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
             className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
