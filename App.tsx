@@ -312,7 +312,10 @@ const App: React.FC = () => {
 
       <EditorModal
         isOpen={isEditorOpen}
-        onClose={() => setIsEditorOpen(false)}
+        onClose={() => {
+          setIsEditorOpen(false);
+          setEditingPrompt(null);
+        }}
         onSave={handleSavePrompt}
         categories={categories}
         initialPrompt={editingPrompt}

@@ -40,8 +40,11 @@ const EditorModal: React.FC<EditorModalProps> = ({
     }
   }, [isOpen, initialPrompt, initialCategoryId, categories]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!title.trim() || !content.trim()) {
+      return;
+    }
     onSave({
       id: initialPrompt?.id,
       title,
@@ -67,8 +70,9 @@ const EditorModal: React.FC<EditorModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto flex flex-col">
+          <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-300">Title</label>
               <input
@@ -96,35 +100,35 @@ const EditorModal: React.FC<EditorModalProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-zinc-300">Prompt Content</label>
-            </div>
-            <textarea
-              required
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter your prompt text here..."
-              className="w-full h-64 bg-black-200 border border-black-300 rounded-lg p-4 text-white font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Tags (comma separated)</label>
-            <div className="relative">
-              <TagIcon className="absolute left-3 top-3 w-4 h-4 text-zinc-500" />
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="coding, python, debug"
-                className="w-full bg-black-200 border border-black-300 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-zinc-300">Prompt Content</label>
+              </div>
+              <textarea
+                required
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Enter your prompt text here..."
+                className="w-full h-64 bg-black-200 border border-black-300 rounded-lg p-4 text-white font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none leading-relaxed"
               />
             </div>
-          </div>
-        </form>
 
-        <div className="p-6 border-t border-black-300 flex justify-end gap-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300">Tags (comma separated)</label>
+              <div className="relative">
+                <TagIcon className="absolute left-3 top-3 w-4 h-4 text-zinc-500" />
+                <input
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="coding, python, debug"
+                  className="w-full bg-black-200 border border-black-300 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 border-t border-black-300 flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
@@ -132,14 +136,15 @@ const EditorModal: React.FC<EditorModalProps> = ({
           >
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-2 bg-accent hover:bg-accent-hover text-black rounded-lg font-medium shadow-lg shadow-accent/20 flex items-center gap-2 transition-all"
-          >
-            <Save className="w-4 h-4" />
-            Save Prompt
-          </button>
-        </div>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-accent hover:bg-accent-hover text-black rounded-lg font-medium shadow-lg shadow-accent/20 flex items-center gap-2 transition-all"
+            >
+              <Save className="w-4 h-4" />
+              Save Prompt
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
