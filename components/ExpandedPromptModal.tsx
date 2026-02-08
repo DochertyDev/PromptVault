@@ -59,7 +59,7 @@ export function ExpandedPromptModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-40 p-4">
       <div className="bg-black-200 rounded-lg shadow-2xl max-h-[95vh] w-full max-w-4xl flex flex-col border border-black-300">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-black-300 flex-shrink-0">
