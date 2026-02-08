@@ -1,13 +1,17 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import PromptCard from './components/PromptCard';
 import EditorModal from './components/EditorModal';
 import ImportResultModal from './components/ImportResultModal';
+import { TemplateVariableModal } from './components/TemplateVariableModal';
+import { BulkActionsBar } from './components/BulkActionsBar';
+import { BulkTagsModal } from './components/BulkTagsModal';
+import { BulkMoveModal } from './components/BulkMoveModal';
 import useIndexedDB from './hooks/useIndexedDB';
 import { Prompt, Category, SortOption } from './types';
 import { Plus, Search, LayoutGrid, List as ListIcon, Star, Filter, XCircle, ArrowDownUp, Download, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { generateCSVWithTimestamp } from './utils/csvExport';
+import { generateCSVWithTimestamp, generateCSVWithTimestampForSelected } from './utils/csvExport';
 import { importPromptsFromCSV, handleCSVFileUpload, ImportResult } from './utils/csvImport';
 
 // Initial Data
@@ -26,16 +30,18 @@ const INITIAL_PROMPTS: Prompt[] = [
     categoryId: '1',
     tags: ['react', 'typescript', 'frontend'],
     isFavorite: true,
+    isTemplate: false,
     createdAt: Date.now(),
     updatedAt: Date.now()
   },
   {
     id: '102',
     title: 'Blog Post Outline',
-    content: 'Write a detailed outline for a blog post about [Topic]. Include a catchy title, introduction with a hook, 3 main section headers with bullet points, and a conclusion with a call to action.',
+    content: 'Write a detailed outline for a blog post about {topic}. Include a catchy title, introduction with a hook, 3 main section headers with bullet points, and a conclusion with a call to action.',
     categoryId: '2',
     tags: ['blog', 'content', 'seo'],
     isFavorite: false,
+    isTemplate: true,
     createdAt: Date.now(),
     updatedAt: Date.now()
   }
@@ -57,6 +63,24 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
+  
+  // Multi-select and bulk operations
+  const [selectedPromptIds, setSelectedPromptIds] = useState<Set<string>>(new Set());
+  const [showTemplateVariableModal, setShowTemplateVariableModal] = useState(false);
+  const [templateToFill, setTemplateFill] = useState<Prompt | null>(null);
+  const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
+  const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
+
+  // Handle Escape key to clear selection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedPromptIds.size > 0) {
+        setSelectedPromptIds(new Set());
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPromptIds.size]);
 
   // Derived State
   const tagCounts = useMemo(() => {
@@ -147,6 +171,7 @@ const App: React.FC = () => {
             categoryId: promptData.categoryId,
             tags: promptData.tags,
             isFavorite: promptData.isFavorite,
+            isTemplate: promptData.isTemplate,
             createdAt: p.createdAt,
             updatedAt: Date.now()
           };
@@ -162,6 +187,7 @@ const App: React.FC = () => {
         categoryId: promptData.categoryId,
         tags: promptData.tags,
         isFavorite: promptData.isFavorite,
+        isTemplate: promptData.isTemplate,
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
@@ -189,13 +215,97 @@ const App: React.FC = () => {
     // Toast logic could go here
   };
 
-  const handleTagClick = (tag: string) => {
+  const handleTagClick = (tag: string | null) => {
     setSelectedTag(current => current === tag ? null : tag);
   };
 
   const handleCategorySelect = (id: string | null) => {
     setSelectedCategoryId(id);
     setSelectedTag(null); // Clear tag filter when switching categories
+  };
+
+  // Template and Selection Handlers
+  const togglePromptSelection = (id: string) => {
+    setSelectedPromptIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedPromptIds(new Set());
+  };
+
+  const handleTemplateRequest = (prompt: Prompt) => {
+    setTemplateFill(prompt);
+    setShowTemplateVariableModal(true);
+  };
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Delete ${selectedPromptIds.size} prompt(s)?`)) {
+      setPrompts(prompts.filter(p => !selectedPromptIds.has(p.id)));
+      setSelectedPromptIds(new Set());
+    }
+  };
+
+  const handleBulkMove = (categoryId: string) => {
+    setPrompts(prompts.map(p => 
+      selectedPromptIds.has(p.id) 
+        ? { ...p, categoryId, updatedAt: Date.now() }
+        : p
+    ));
+    setSelectedPromptIds(new Set());
+    setShowBulkMoveModal(false);
+  };
+
+  const handleBulkAddTags = (tagsToAdd: string[], tagsToRemove: string[]) => {
+    setPrompts(prompts.map(p => {
+      if (selectedPromptIds.has(p.id)) {
+        const newTags = [...new Set([...p.tags, ...tagsToAdd])].filter(t => !tagsToRemove.includes(t));
+        return { ...p, tags: newTags, updatedAt: Date.now() };
+      }
+      return p;
+    }));
+    setSelectedPromptIds(new Set());
+    setShowBulkTagsModal(false);
+  };
+
+  const handleBulkCopy = () => {
+    const selectedPrompts = prompts.filter(p => selectedPromptIds.has(p.id));
+    const textToCopy = selectedPrompts
+      .map(p => `${p.title}\n${p.content}`)
+      .join('\n\n---\n\n');
+    navigator.clipboard.writeText(textToCopy);
+    setSelectedPromptIds(new Set());
+  };
+
+  const handleBulkExport = () => {
+    try {
+      const selectedPrompts = prompts.filter(p => selectedPromptIds.has(p.id));
+      generateCSVWithTimestampForSelected(selectedPrompts, categories);
+      setSelectedPromptIds(new Set());
+    } catch (error) {
+      console.error('Error exporting selected prompts:', error);
+      alert('Failed to export selected prompts. Please try again.');
+    }
+  };
+
+  // Get tags present in selected prompts
+  const getSelectedPromptTags = () => {
+    const tagCounts: Record<string, number> = {};
+    prompts
+      .filter(p => selectedPromptIds.has(p.id))
+      .forEach(p => {
+        p.tags.forEach(t => {
+          tagCounts[t] = (tagCounts[t] || 0) + 1;
+        });
+      });
+    return tagCounts;
   };
 
   const handleExportCSV = () => {
@@ -253,7 +363,7 @@ const App: React.FC = () => {
         onSelectTag={handleTagClick}
       />
 
-      <main className="flex-1 ml-64 p-8 max-w-[1920px]">
+      <main className="flex-1 ml-64 p-8 max-w-[1920px] pb-24">
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
@@ -266,6 +376,7 @@ const App: React.FC = () => {
                   <button 
                     onClick={() => setSelectedTag(null)}
                     className="ml-1 hover:text-white"
+                    title="Clear tag filter"
                   >
                     <XCircle className="w-4 h-4" />
                   </button>
@@ -295,6 +406,7 @@ const App: React.FC = () => {
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as SortOption)}
                 className="appearance-none w-40 bg-black-200 border border-black-300 rounded-lg pl-10 pr-8 py-2 text-sm text-zinc-200 focus:ring-2 focus:ring-accent outline-none transition-all cursor-pointer"
+                title="Sort prompts"
               >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
@@ -307,12 +419,14 @@ const App: React.FC = () => {
                 <button
                     onClick={() => setViewMode('grid')}
                     className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
+                    title="Grid view"
                 >
                     <LayoutGrid className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => setViewMode('list')}
                     className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'}`}
+                    title="List view"
                 >
                     <ListIcon className="w-4 h-4" />
                 </button>
@@ -381,6 +495,9 @@ const App: React.FC = () => {
                     onTagClick={handleTagClick}
                     selectedTag={selectedTag}
                     viewMode={viewMode}
+                    isSelected={selectedPromptIds.has(prompt.id)}
+                    onSelect={togglePromptSelection}
+                    onTemplateRequest={handleTemplateRequest}
                   />
               </div>
             ))}
@@ -415,6 +532,45 @@ const App: React.FC = () => {
         onClose={() => setShowImportResult(false)}
         result={importResult}
         promptsImported={importedPromptsCount}
+      />
+
+      <TemplateVariableModal
+        isOpen={showTemplateVariableModal}
+        content={templateToFill?.content || ''}
+        onClose={() => {
+          setShowTemplateVariableModal(false);
+          setTemplateFill(null);
+        }}
+        onSubmit={() => {
+          // No additional action needed; copying happens in the modal
+        }}
+      />
+
+      <BulkTagsModal
+        isOpen={showBulkTagsModal}
+        allExistingTags={Object.keys(tagCounts).sort()}
+        selectedPromptTags={getSelectedPromptTags()}
+        totalSelected={selectedPromptIds.size}
+        onClose={() => setShowBulkTagsModal(false)}
+        onApply={handleBulkAddTags}
+      />
+
+      <BulkMoveModal
+        isOpen={showBulkMoveModal}
+        categories={categories}
+        totalSelected={selectedPromptIds.size}
+        onClose={() => setShowBulkMoveModal(false)}
+        onApply={handleBulkMove}
+      />
+
+      <BulkActionsBar
+        selectedCount={selectedPromptIds.size}
+        onCopy={handleBulkCopy}
+        onDelete={handleBulkDelete}
+        onMove={() => setShowBulkMoveModal(true)}
+        onTags={() => setShowBulkTagsModal(true)}
+        onExport={handleBulkExport}
+        onClearSelection={clearSelection}
       />
     </div>
   );

@@ -23,6 +23,8 @@ const EditorModal: React.FC<EditorModalProps> = ({
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [tags, setTags] = useState('');
+  const [isTemplate, setIsTemplate] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -31,11 +33,15 @@ const EditorModal: React.FC<EditorModalProps> = ({
         setContent(initialPrompt.content);
         setCategoryId(initialPrompt.categoryId);
         setTags(initialPrompt.tags.join(', '));
+        setIsTemplate(initialPrompt.isTemplate);
+        setIsFavorite(initialPrompt.isFavorite);
       } else {
         setTitle('');
         setContent('');
         setCategoryId(initialCategoryId || (categories[0]?.id || ''));
         setTags('');
+        setIsTemplate(false);
+        setIsFavorite(false);
       }
     }
   }, [isOpen, initialPrompt, initialCategoryId, categories]);
@@ -51,7 +57,8 @@ const EditorModal: React.FC<EditorModalProps> = ({
       content,
       categoryId,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-      isFavorite: initialPrompt?.isFavorite || false
+      isFavorite,
+      isTemplate
     });
     onClose();
   };
@@ -65,7 +72,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
           <h2 className="text-xl font-bold text-white">
             {initialPrompt ? 'Edit Prompt' : 'New Prompt Template'}
           </h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors" title="Close">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -91,6 +98,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                title="Select category"
               >
                 <option value="" disabled>Select a category</option>
                 {categories.map(cat => (
@@ -125,6 +133,23 @@ const EditorModal: React.FC<EditorModalProps> = ({
                   className="w-full bg-black-200 border border-black-300 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
                 />
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 p-3 rounded bg-black-200 border border-black-300 hover:border-accent/50 cursor-pointer transition">
+                <input
+                  type="checkbox"
+                  checked={isTemplate}
+                  onChange={(e) => setIsTemplate(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-600 text-accent accent-accent cursor-pointer"
+                />
+                <span className="text-sm font-medium text-zinc-300">This is a template (with variable placeholders)</span>
+              </label>
+              {isTemplate && (
+                <p className="text-xs text-blue-300 px-3 py-2 bg-blue-950 rounded border border-blue-800">
+                  💡 Use <code className="bg-black-300 px-1 py-0.5 rounded text-blue-300 font-mono">{'{variable}'}</code> syntax in your prompt content for placeholders
+                </p>
+              )}
             </div>
           </div>
 

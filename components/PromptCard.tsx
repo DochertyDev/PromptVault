@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Prompt, Category, ViewMode } from '../types';
-import { Copy, Check, Edit, Trash2, Tag, Calendar, Star } from 'lucide-react';
+import { Copy, Check, Edit, Trash2, Tag, Calendar, Star, FileText } from 'lucide-react';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -12,6 +12,9 @@ interface PromptCardProps {
   onTagClick: (tag: string) => void;
   selectedTag?: string | null;
   viewMode?: ViewMode;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
+  onTemplateRequest?: (prompt: Prompt) => void;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ 
@@ -23,26 +26,65 @@ const PromptCard: React.FC<PromptCardProps> = ({
   onToggleFavorite,
   onTagClick,
   selectedTag,
-  viewMode = 'grid'
+  viewMode = 'grid',
+  isSelected = false,
+  onSelect,
+  onTemplateRequest,
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onCopy(prompt.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (prompt.isTemplate && onTemplateRequest) {
+      // For templates, open the variable modal instead of direct copy
+      onTemplateRequest(prompt);
+    } else {
+      onCopy(prompt.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if ((e as any).ctrlKey || (e as any).metaKey) {
+      e.preventDefault();
+      if (onSelect) {
+        onSelect(prompt.id);
+      }
+    }
   };
 
   if (viewMode === 'list') {
     return (
       <div 
-        className="group bg-black-200 backdrop-blur-sm border border-black-300 hover:border-accent rounded-lg p-3 flex items-center gap-4 transition-all duration-200 hover:shadow-lg hover:shadow-accent/10"
+        onClick={handleCardClick}
+        className={`group bg-black-200 backdrop-blur-sm border rounded-lg p-3 flex items-center gap-4 transition-all duration-200 hover:shadow-lg hover:shadow-accent/10 cursor-pointer ${
+          isSelected
+            ? 'border-accent bg-accent/5 shadow-accent/20'
+            : 'border-black-300 hover:border-accent'
+        }`}
       >
         <div className="flex items-center gap-3 flex-shrink-0">
+          {onSelect && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(prompt.id);
+              }}
+              className={`w-5 h-5 rounded border-2 transition-all ${
+                isSelected
+                  ? 'border-accent bg-accent flex items-center justify-center'
+                  : 'border-gray-600 hover:border-accent'
+              }`}
+              title="Hold Ctrl and click to select multiple"
+            >
+              {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+            </button>
+          )}
            <button 
              onClick={(e) => { e.stopPropagation(); onToggleFavorite(prompt.id); }}
              className={`transition-colors ${prompt.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600 hover:text-yellow-400'}`}
+             title="Toggle favorite"
            >
               <Star className="w-5 h-5" fill={prompt.isFavorite ? "currentColor" : "none"} />
            </button>
@@ -51,6 +93,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
         <div className="flex-1 min-w-0">
            <div className="flex items-center gap-3 mb-1">
               <h3 className="text-base font-semibold text-zinc-100 truncate">{prompt.title}</h3>
+              {prompt.isTemplate && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-blue-950 text-blue-300 border border-blue-700">
+                  <FileText className="w-3 h-3" />
+                  Template
+                </span>
+              )}
               {category && (
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-black-300 text-zinc-300">
                    {category.name}
@@ -112,15 +160,47 @@ const PromptCard: React.FC<PromptCardProps> = ({
   }
 
   return (
-    <div className="group bg-black-200 backdrop-blur-sm border border-black-300 hover:border-accent rounded-xl p-5 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/10">
+    <div 
+      onClick={handleCardClick}
+      className={`group bg-black-200 backdrop-blur-sm border rounded-xl p-5 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/10 cursor-pointer ${
+        isSelected
+          ? 'border-accent bg-accent/5 shadow-accent/20'
+          : 'border-black-300 hover:border-accent'
+      }`}
+    >
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-2">
-           <h3 className="text-lg font-semibold text-zinc-100 line-clamp-1" title={prompt.title}>
-              {prompt.title}
-           </h3>
+           {onSelect && (
+             <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 onSelect(prompt.id);
+               }}
+               className={`w-5 h-5 rounded border-2 transition-all flex-shrink-0 ${
+                 isSelected
+                   ? 'border-accent bg-accent flex items-center justify-center'
+                   : 'border-gray-600 hover:border-accent'
+               }`}
+               title="Hold Ctrl and click to select multiple"
+             >
+               {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+             </button>
+           )}
+           <div className="flex flex-col">
+             <h3 className="text-lg font-semibold text-zinc-100 line-clamp-1" title={prompt.title}>
+                {prompt.title}
+             </h3>
+             {prompt.isTemplate && (
+               <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded text-[10px] font-medium bg-blue-950 text-blue-300 border border-blue-700 mt-1">
+                 <FileText className="w-3 h-3" />
+                 Template
+               </span>
+             )}
+           </div>
            <button 
              onClick={(e) => { e.stopPropagation(); onToggleFavorite(prompt.id); }}
-             className={`transition-colors ${prompt.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600 hover:text-yellow-400'}`}
+             className={`transition-colors flex-shrink-0 ${prompt.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600 hover:text-yellow-400'}`}
+             title="Toggle favorite"
            >
               <Star className="w-4 h-4" fill={prompt.isFavorite ? "currentColor" : "none"} />
            </button>
