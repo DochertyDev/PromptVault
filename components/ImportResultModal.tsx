@@ -36,7 +36,7 @@ const ImportResultModal: React.FC<ImportResultModalProps> = ({
               {hasErrors ? 'Import Failed' : 'Import Complete'}
             </h2>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors" title="Close">
             <X className="w-6 h-6" />
           </button>
         </div>

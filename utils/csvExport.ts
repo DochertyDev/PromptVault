@@ -56,3 +56,10 @@ export function generateCSVWithTimestamp(prompts: Prompt[], categories: Category
   const filename = `promptvault-backup-${timestamp}.csv`;
   downloadCSV(csv, filename);
 }
+
+export function generateCSVWithTimestampForSelected(prompts: Prompt[], categories: Category[]): void {
+  const csv = exportPromptsToCSV(prompts, categories);
+  const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const filename = `promptvault-export-${timestamp}.csv`;
+  downloadCSV(csv, filename);
+}

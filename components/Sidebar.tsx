@@ -140,6 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         onBlur={() => setEditingId(null)}
+                        placeholder="Enter category name"
                         className="w-full bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none"
                       />
                   </form>

@@ -11,6 +11,7 @@ export interface Prompt {
   categoryId: string;
   tags: string[];
   isFavorite: boolean;
+  isTemplate: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -18,6 +19,15 @@ export interface Prompt {
 export type ViewMode = 'grid' | 'list';
 
 export type SortOption = 'newest' | 'oldest' | 'az' | 'za';
+
+export type BulkAction = 'copy' | 'delete' | 'move' | 'addTags' | 'removeTags' | 'export';
+
+export interface TemplateVariable {
+  name: string;
+  value?: string;
+}
+
+export type TemplateFillValues = Record<string, string>;
 
 export interface Toast {
   id: string;
