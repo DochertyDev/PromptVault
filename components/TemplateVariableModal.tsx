@@ -77,40 +77,37 @@ export function TemplateVariableModal({
   const allFilled = varNames.every((v) => variables[v]?.trim());
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-black-200 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="bg-black-100 border border-black-300 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-black-300">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Copy className="w-5 h-5 text-accent" />
-            Fill Template Variables
-          </h2>
+        <div className="flex items-center justify-between p-6 border-b border-black-300">
+          <h2 className="text-xl font-bold text-white">Fill Template Variables</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition"
+            className="text-zinc-400 hover:text-white transition-colors"
             title="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="flex-1 overflow-y-auto p-6">
           {varNames.length === 0 ? (
-            <div className="flex items-start gap-3 p-3 bg-black-300 rounded text-yellow-500 text-sm">
+            <div className="flex items-start gap-3 p-4 bg-yellow-950/30 border border-yellow-800/30 rounded-lg text-yellow-400 text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <p>No variables found. Copying template directly...</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-400 mb-4">
+            <div className="space-y-6">
+              <p className="text-sm text-zinc-300">
                 Enter values for the {varNames.length} variable
                 {varNames.length !== 1 ? 's' : ''} in this template:
               </p>
 
               {varNames.map((varName) => (
-                <div key={varName}>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                <div key={varName} className="space-y-2">
+                  <label className="block text-sm font-medium text-zinc-300">
                     {varName}
                   </label>
                   <input
@@ -118,7 +115,7 @@ export function TemplateVariableModal({
                     placeholder={`Enter ${varName}...`}
                     value={variables[varName] || ''}
                     onChange={(e) => handleUpdate(varName, e.target.value)}
-                    className="w-full px-3 py-2 bg-black-300 border border-black-400 rounded text-white placeholder-gray-500 focus:outline-none focus:border-accent transition"
+                    className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
                   />
                 </div>
               ))}
@@ -127,16 +124,16 @@ export function TemplateVariableModal({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-4 border-t border-black-300">
+        <div className="p-6 border-t border-black-300 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-gray-300 border border-gray-600 rounded hover:border-gray-500 hover:text-white transition"
+            className="px-4 py-2 rounded-lg text-zinc-300 hover:text-white hover:bg-black-200 transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleCopyAsIs}
-            className="flex-1 px-4 py-2 bg-gray-700 text-white rounded font-medium hover:bg-gray-600 transition flex items-center justify-center gap-2"
+            className="px-4 py-2 rounded-lg text-zinc-300 border border-black-300 hover:bg-black-200 transition-colors font-medium flex items-center gap-2"
           >
             <Copy className="w-4 h-4" />
             Copy as-is
@@ -144,7 +141,7 @@ export function TemplateVariableModal({
           <button
             onClick={handleSubmit}
             disabled={varNames.length > 0 && !allFilled}
-            className="flex-1 px-4 py-2 bg-accent text-white rounded font-medium hover:bg-accent-light disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+            className="px-6 py-2 bg-accent hover:bg-accent-hover text-black rounded-lg font-medium shadow-lg shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
             {copied ? (
               <>
@@ -154,7 +151,7 @@ export function TemplateVariableModal({
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                Copy Template
+                Copy with Variables
               </>
             )}
           </button>
