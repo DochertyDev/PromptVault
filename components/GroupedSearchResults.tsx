@@ -1,5 +1,5 @@
 import React from 'react';
-import { FolderOpen, Tag, FileText, ArrowRight } from 'lucide-react';
+import { FolderOpen, Tag, FileText, Search } from 'lucide-react';
 import { Prompt, Category } from '../types';
 import { GroupedSearchResults } from '../utils/searchPrompts';
 
@@ -23,36 +23,43 @@ export function GroupedSearchResultsComponent({
   // If no results at all, show empty state
   if (results.categories.length === 0 && results.tags.length === 0 && results.prompts.length === 0) {
     return (
-      <div className="fixed top-[180px] left-72 right-8 bg-black-100 border border-black-300 rounded-lg shadow-xl z-40 p-8 text-center">
-        <FileText className="w-12 h-12 text-zinc-500 mx-auto mb-3" />
-        <p className="text-zinc-400">No results found for "{searchQuery}"</p>
-        <p className="text-xs text-zinc-500 mt-1">Try different keywords or filters</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="bg-black-200 p-4 rounded-full mb-4">
+          <Search className="w-8 h-8 text-zinc-500" />
+        </div>
+        <h3 className="text-xl font-medium text-white mb-2">No results found</h3>
+        <p className="text-zinc-400 max-w-sm">
+          No matches for "{searchQuery}". Try different keywords or filters.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="fixed top-[180px] left-72 right-8 bg-black-100 border border-black-300 rounded-lg shadow-xl z-40 max-h-[calc(100vh-220px)] overflow-y-auto">
+    <div className="space-y-8">
       {/* Categories Section */}
       {results.categories.length > 0 && (
-        <div className="border-b border-black-300">
-          <div className="px-6 py-3 bg-black-200">
-            <div className="flex items-center gap-2">
-              <FolderOpen className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-semibold text-zinc-300">
-                Categories ({results.categories.length})
-              </h3>
-            </div>
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <FolderOpen className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">
+              Categories ({results.categories.length})
+            </h2>
           </div>
-          <div className="divide-y divide-black-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {results.categories.map(category => (
               <button
                 key={category.id}
                 onClick={() => onSelectCategory(category.id)}
-                className="w-full px-6 py-3 text-left hover:bg-black-200 transition-colors flex items-center justify-between group"
+                className="bg-black-200 border border-black-300 rounded-xl p-4 text-left hover:border-accent hover:bg-black-100 transition-all duration-200 group"
               >
-                <span className="text-zinc-200">{category.name}</span>
-                <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-accent transition-colors" />
+                <div className="flex items-center justify-between">
+                  <FolderOpen className="w-6 h-6 text-accent flex-shrink-0" />
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </div>
+                <h3 className="text-base font-medium text-white mt-3 group-hover:text-accent transition-colors">
+                  {category.name}
+                </h3>
               </button>
             ))}
           </div>
@@ -61,27 +68,30 @@ export function GroupedSearchResultsComponent({
 
       {/* Tags Section */}
       {results.tags.length > 0 && (
-        <div className="border-b border-black-300">
-          <div className="px-6 py-3 bg-black-200">
-            <div className="flex items-center gap-2">
-              <Tag className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-semibold text-zinc-300">
-                Tags ({results.tags.length})
-              </h3>
-            </div>
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Tag className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">
+              Tags ({results.tags.length})
+            </h2>
           </div>
-          <div className="divide-y divide-black-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {results.tags.map(tag => (
               <button
                 key={tag}
                 onClick={() => onSelectTag(tag)}
-                className="w-full px-6 py-3 text-left hover:bg-black-200 transition-colors flex items-center justify-between group"
+                className="bg-black-200 border border-black-300 rounded-xl p-4 text-left hover:border-accent hover:bg-accent/5 transition-all duration-200 group"
               >
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-accent"></span>
-                  <span className="text-zinc-200">{tag}</span>
-                </span>
-                <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-accent transition-colors" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 rounded-full bg-accent"></span>
+                    <span className="text-sm text-zinc-400 group-hover:text-accent transition-colors">#</span>
+                  </div>
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </div>
+                <h3 className="text-base font-medium text-white mt-3 group-hover:text-accent transition-colors break-words">
+                  {tag}
+                </h3>
               </button>
             ))}
           </div>
@@ -91,49 +101,47 @@ export function GroupedSearchResultsComponent({
       {/* Prompts Section */}
       {results.prompts.length > 0 && (
         <div>
-          <div className="px-6 py-3 bg-black-200">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-semibold text-zinc-300">
-                Prompts ({results.prompts.length})
-              </h3>
-            </div>
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">
+              Prompts ({results.prompts.length})
+            </h2>
           </div>
-          <div className="divide-y divide-black-300 max-h-64 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {results.prompts.map(prompt => (
               <button
                 key={prompt.id}
                 onClick={() => onSelectPrompt?.(prompt)}
-                className="w-full px-6 py-3 text-left hover:bg-black-200 transition-colors group"
+                className="bg-black-200 border border-black-300 rounded-xl p-5 text-left hover:border-accent hover:shadow-lg hover:shadow-accent/10 transition-all duration-200 group flex flex-col h-full"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white group-hover:text-accent transition-colors truncate">
-                      {prompt.title}
-                    </p>
-                    <p className="text-xs text-zinc-400 line-clamp-1 mt-1">
-                      {prompt.content}
-                    </p>
-                    {prompt.tags.length > 0 && (
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {prompt.tags.slice(0, 2).map(tag => (
-                          <span
-                            key={tag}
-                            className="inline-block px-2 py-0.5 rounded text-[10px] bg-accent/10 text-accent border border-accent/20"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {prompt.tags.length > 2 && (
-                          <span className="text-[10px] text-zinc-500">
-                            +{prompt.tags.length - 2}
-                          </span>
-                        )}
-                      </div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h3 className="text-base font-semibold text-white group-hover:text-accent transition-colors flex-1 line-clamp-2">
+                    {prompt.title}
+                  </h3>
+                  <span className="text-accent text-sm opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">→</span>
+                </div>
+                
+                <p className="text-sm text-zinc-400 line-clamp-2 mb-3 flex-1">
+                  {prompt.content}
+                </p>
+
+                {prompt.tags.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mt-auto pt-3 border-t border-black-300">
+                    {prompt.tags.slice(0, 2).map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-block px-2 py-1 rounded text-[10px] bg-accent/10 text-accent border border-accent/20"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {prompt.tags.length > 2 && (
+                      <span className="text-[10px] text-zinc-500 py-1">
+                        +{prompt.tags.length - 2}
+                      </span>
                     )}
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-accent transition-colors flex-shrink-0 mt-1" />
-                </div>
+                )}
               </button>
             ))}
           </div>

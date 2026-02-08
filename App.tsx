@@ -521,39 +521,51 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Prompt Grid */}
-        {filteredPrompts.length > 0 ? (
-          <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6' : 'space-y-4'}`}>
-            {filteredPrompts.map(prompt => (
-              <div key={prompt.id} className={viewMode === 'list' ? 'max-w-4xl mx-auto w-full' : ''}>
-                 <PromptCard
-                    prompt={prompt}
-                    category={categories.find(c => c.id === prompt.categoryId)}
-                    onEdit={handleEditPrompt}
-                    onDelete={handleDeletePrompt}
-                    onCopy={copyToClipboard}
-                    onToggleFavorite={handleToggleFavorite}
-                    onTagClick={handleTagClick}
-                    selectedTag={selectedTag}
-                    viewMode={viewMode}
-                    isSelected={selectedPromptIds.has(prompt.id)}
-                    onSelect={togglePromptSelection}
-                    onTemplateRequest={handleTemplateRequest}
-                    onExpand={handleExpandPrompt}
-                  />
-              </div>
-            ))}
-          </div>
+        {/* Search Results View */}
+        {searchQuery.trim() ? (
+          <GroupedSearchResultsComponent
+            results={groupedSearchResults}
+            searchQuery={searchQuery}
+            categories={categories}
+            onSelectCategory={handleSearchCategorySelect}
+            onSelectTag={handleSearchTagSelect}
+            onSelectPrompt={handleExpandPrompt}
+          />
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="bg-black-200 p-4 rounded-full mb-4">
-               <Search className="w-8 h-8 text-zinc-500" />
+          /* Prompt Grid */
+          filteredPrompts.length > 0 ? (
+            <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6' : 'space-y-4'}`}>
+              {filteredPrompts.map(prompt => (
+                <div key={prompt.id} className={viewMode === 'list' ? 'max-w-4xl mx-auto w-full' : ''}>
+                   <PromptCard
+                      prompt={prompt}
+                      category={categories.find(c => c.id === prompt.categoryId)}
+                      onEdit={handleEditPrompt}
+                      onDelete={handleDeletePrompt}
+                      onCopy={copyToClipboard}
+                      onToggleFavorite={handleToggleFavorite}
+                      onTagClick={handleTagClick}
+                      selectedTag={selectedTag}
+                      viewMode={viewMode}
+                      isSelected={selectedPromptIds.has(prompt.id)}
+                      onSelect={togglePromptSelection}
+                      onTemplateRequest={handleTemplateRequest}
+                      onExpand={handleExpandPrompt}
+                    />
+                </div>
+              ))}
             </div>
-            <h3 className="text-xl font-medium text-white mb-2">No prompts found</h3>
-            <p className="text-zinc-400 max-w-sm">
-              We couldn't find any prompts matching your criteria. Try adjusting your search filters.
-            </p>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="bg-black-200 p-4 rounded-full mb-4">
+                 <Search className="w-8 h-8 text-zinc-500" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No prompts found</h3>
+              <p className="text-zinc-400 max-w-sm">
+                We couldn't find any prompts matching your criteria. Try adjusting your search filters.
+              </p>
+            </div>
+          )
         )}
       </main>
 
@@ -625,16 +637,7 @@ const App: React.FC = () => {
         onClearSelection={clearSelection}
       />
 
-      {searchQuery.trim() && (
-        <GroupedSearchResultsComponent
-          results={groupedSearchResults}
-          searchQuery={searchQuery}
-          categories={categories}
-          onSelectCategory={handleSearchCategorySelect}
-          onSelectTag={handleSearchTagSelect}
-          onSelectPrompt={handleExpandPrompt}
-        />
-      )}
+
     </div>
   );
 };
