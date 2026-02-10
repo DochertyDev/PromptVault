@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Copy, Check, Edit, Save } from 'lucide-react';
 import { Prompt, Category } from '../types';
 import { CustomSelect } from './CustomSelect';
@@ -29,6 +29,7 @@ export function CombinedPromptModal({
 }: CombinedPromptModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Edit form state
   const [title, setTitle] = useState('');
@@ -164,7 +165,7 @@ export function CombinedPromptModal({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {isEditing ? (
             // Edit Mode
-            <form onSubmit={handleSave} className="space-y-6">
+            <form ref={formRef} onSubmit={handleSave} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-zinc-300">Category</label>
                 <CustomSelect
@@ -280,11 +281,9 @@ export function CombinedPromptModal({
                 Cancel
               </button>
               <button
-                onClick={(e) => {
-                  const form = e.currentTarget.closest('div').querySelector('form');
-                  if (form) {
-                    const submitEvent = new Event('submit', { bubbles: true });
-                    form.dispatchEvent(submitEvent);
+                onClick={() => {
+                  if (formRef.current) {
+                    formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
                   }
                 }}
                 className="px-6 py-2 bg-accent hover:bg-accent-hover text-black rounded-lg font-medium shadow-lg shadow-accent/20 flex items-center gap-2 transition-all"
