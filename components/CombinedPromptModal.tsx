@@ -39,21 +39,34 @@ export function CombinedPromptModal({
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    if (isOpen && prompt) {
-      setTitle(prompt.title);
-      setContent(prompt.content);
-      setCategoryId(prompt.categoryId);
-      setTags(prompt.tags.join(', '));
-      setIsTemplate(prompt.isTemplate);
-      setIsFavorite(prompt.isFavorite);
-      setIsEditing(mode === 'edit'); // Set editing mode based on prop
-      setCopied(false);
+    if (isOpen) {
+      if (prompt) {
+        setTitle(prompt.title);
+        setContent(prompt.content);
+        setCategoryId(prompt.categoryId);
+        setTags(prompt.tags.join(', '));
+        setIsTemplate(prompt.isTemplate);
+        setIsFavorite(prompt.isFavorite);
+        setIsEditing(mode === 'edit'); // Set editing mode based on prop
+        setCopied(false);
+      } else if (mode === 'edit') {
+        // Creating a new prompt
+        setTitle('');
+        setContent('');
+        setCategoryId('');
+        setTags('');
+        setIsTemplate(false);
+        setIsFavorite(false);
+        setIsEditing(true);
+        setCopied(false);
+      }
     }
   }, [isOpen, prompt, mode]);
 
-  if (!isOpen || !prompt) return null;
+  if (!isOpen) return null;
 
   const handleCopy = () => {
+    if (!prompt) return;
     if (prompt.isTemplate && onTemplateRequest) {
       onTemplateRequest(prompt);
     } else {
@@ -69,7 +82,7 @@ export function CombinedPromptModal({
       return;
     }
     onSave({
-      id: prompt.id,
+      id: prompt?.id,
       title,
       content,
       categoryId,
@@ -114,21 +127,23 @@ export function CombinedPromptModal({
               </div>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-white mb-2">{prompt.title}</h2>
+                <h2 className="text-xl font-bold text-white mb-2">{prompt?.title || 'New Prompt'}</h2>
                 <div className="flex items-center gap-2 flex-wrap">
-                  {prompt.isTemplate && (
+                  {prompt?.isTemplate && (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-blue-950 text-blue-300 border border-blue-700">
                       Template
                     </span>
                   )}
-                  {category && (
+                  {prompt && category && (
                     <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-black-200 text-zinc-300 border border-black-300">
                       {category.name}
                     </span>
                   )}
-                  <span className="text-xs text-zinc-500">
-                    {new Date(prompt.createdAt).toLocaleDateString()}
-                  </span>
+                  {prompt && (
+                    <span className="text-xs text-zinc-500">
+                      {new Date(prompt.createdAt).toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
               </>
             )}
@@ -219,32 +234,36 @@ export function CombinedPromptModal({
           ) : (
             // View Mode
             <>
-              <div className="bg-black-200/50 rounded-lg p-6 border border-black-300">
-                <div className="text-zinc-200 whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                  {prompt.isTemplate
-                    ? renderContentWithHighlightedVariables(prompt.content)
-                    : prompt.content}
-                </div>
-              </div>
-
-              {prompt.tags.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-zinc-300 mb-3">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {prompt.tags.map((tag) => (
-                      <TagBadge key={tag} label={tag} size="lg" />
-                    ))}
+              {prompt && (
+                <>
+                  <div className="bg-black-200/50 rounded-lg p-6 border border-black-300">
+                    <div className="text-zinc-200 whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                      {prompt.isTemplate
+                        ? renderContentWithHighlightedVariables(prompt.content)
+                        : prompt.content}
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {prompt.isTemplate && (
-                <div className="bg-blue-950/20 border border-blue-800/30 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-300 mb-2">Template Variables</h3>
-                  <p className="text-xs text-blue-200/70">
-                    This template contains variables highlighted in yellow. When copying with variables filled, enter their values in the modal that appears.
-                  </p>
-                </div>
+                  {prompt.tags.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-zinc-300 mb-3">Tags</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {prompt.tags.map((tag) => (
+                          <TagBadge key={tag} label={tag} size="lg" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {prompt.isTemplate && (
+                    <div className="bg-blue-950/20 border border-blue-800/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-blue-300 mb-2">Template Variables</h3>
+                      <p className="text-xs text-blue-200/70">
+                        This template contains variables highlighted in yellow. When copying with variables filled, enter their values in the modal that appears.
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
@@ -274,7 +293,7 @@ export function CombinedPromptModal({
                 Save Prompt
               </button>
             </>
-          ) : (
+          ) : prompt ? (
             <>
               <button
                 onClick={() => setIsEditing(true)}
@@ -304,7 +323,7 @@ export function CombinedPromptModal({
                 )}
               </button>
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
