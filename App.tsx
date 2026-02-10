@@ -68,6 +68,7 @@ const App: React.FC = () => {
   // Multi-select and bulk operations
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [promptModalPrompt, setPromptModalPrompt] = useState<Prompt | null>(null);
+  const [promptModalMode, setPromptModalMode] = useState<'view' | 'edit'>('view');
   const [selectedPromptIds, setSelectedPromptIds] = useState<Set<string>>(new Set());
   const [showTemplateVariableModal, setShowTemplateVariableModal] = useState(false);
   const [templateToFill, setTemplateFill] = useState<Prompt | null>(null);
@@ -226,6 +227,7 @@ const App: React.FC = () => {
 
   const handleEditPrompt = (prompt: Prompt) => {
     setPromptModalPrompt(prompt);
+    setPromptModalMode('edit');
     setPromptModalOpen(true);
   };
 
@@ -275,6 +277,7 @@ const App: React.FC = () => {
 
   const handleExpandPrompt = (prompt: Prompt) => {
     setPromptModalPrompt(prompt);
+    setPromptModalMode('view');
     setPromptModalOpen(true);
     setSearchQuery(''); // Clear search when expanding a prompt from results
   };
@@ -426,6 +429,7 @@ const App: React.FC = () => {
             <button
               onClick={() => {
                 setPromptModalPrompt(null);
+                setPromptModalMode('edit');
                 setPromptModalOpen(true);
               }}
               className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20 flex-shrink-0"
@@ -573,10 +577,12 @@ const App: React.FC = () => {
         onClose={() => {
           setPromptModalOpen(false);
           setPromptModalPrompt(null);
+          setPromptModalMode('view');
         }}
         onSave={handleSavePrompt}
         prompt={promptModalPrompt}
         categories={categories}
+        mode={promptModalMode}
         onTemplateRequest={handleTemplateRequest}
         onCopy={copyToClipboard}
       />

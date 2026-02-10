@@ -149,7 +149,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
               </label>
               {isTemplate && (
                 <p className="text-xs text-blue-300 px-3 py-2 bg-blue-950 rounded border border-blue-800">
-                  💡 Use <code className="bg-black-300 px-1 py-0.5 rounded text-blue-300 font-mono">{'{variable}'}</code> syntax in your prompt content for placeholders
+                  💡 Use <code className="bg-black-300 px-1 py-0.5 rounded text-blue-300 font-mono">{`{variable}`}</code> syntax in your prompt content for placeholders
                 </p>
               )}
             </div>

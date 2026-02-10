@@ -13,6 +13,7 @@ interface CombinedPromptModalProps {
   onSave: (promptData: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => void;
   onTemplateRequest?: (prompt: Prompt) => void;
   onCopy: (content: string) => void;
+  mode?: 'view' | 'edit';
 }
 
 export function CombinedPromptModal({
@@ -24,6 +25,7 @@ export function CombinedPromptModal({
   onSave,
   onTemplateRequest,
   onCopy,
+  mode = 'view',
 }: CombinedPromptModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -44,10 +46,10 @@ export function CombinedPromptModal({
       setTags(prompt.tags.join(', '));
       setIsTemplate(prompt.isTemplate);
       setIsFavorite(prompt.isFavorite);
-      setIsEditing(false); // Always open in view mode
+      setIsEditing(mode === 'edit'); // Set editing mode based on prop
       setCopied(false);
     }
-  }, [isOpen, prompt]);
+  }, [isOpen, prompt, mode]);
 
   if (!isOpen || !prompt) return null;
 
@@ -199,7 +201,7 @@ export function CombinedPromptModal({
                 </label>
                 {isTemplate && (
                   <p className="text-xs text-blue-300 px-3 py-2 bg-blue-950 rounded border border-blue-800">
-                    Use <code className="bg-black-300 px-1 py-0.5 rounded text-blue-300 font-mono">{'{'}{variable}{'}'}</code> syntax in your prompt content for placeholders
+                    Use <code className="bg-black-300 px-1 py-0.5 rounded text-blue-300 font-mono">{`{variable}`}</code> syntax in your prompt content for placeholders
                   </p>
                 )}
               </div>
