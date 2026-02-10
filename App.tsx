@@ -568,16 +568,17 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <EditorModal
-        isOpen={isEditorOpen}
+      <CombinedPromptModal
+        isOpen={promptModalOpen}
         onClose={() => {
-          setIsEditorOpen(false);
-          setEditingPrompt(null);
+          setPromptModalOpen(false);
+          setPromptModalPrompt(null);
         }}
         onSave={handleSavePrompt}
+        prompt={promptModalPrompt}
         categories={categories}
-        initialPrompt={editingPrompt}
-        initialCategoryId={selectedCategoryId}
+        onTemplateRequest={handleTemplateRequest}
+        onCopy={copyToClipboard}
       />
 
       <ImportResultModal
@@ -597,16 +598,6 @@ const App: React.FC = () => {
         onSubmit={() => {
           // No additional action needed; copying happens in the modal
         }}
-      />
-
-      <ExpandedPromptModal
-        isOpen={expandedPrompt !== null}
-        prompt={expandedPrompt}
-        category={expandedPrompt ? categories.find(c => c.id === expandedPrompt.categoryId) : undefined}
-        onClose={() => setExpandedPrompt(null)}
-        onEdit={handleEditPrompt}
-        onTemplateRequest={handleTemplateRequest}
-        onCopy={copyToClipboard}
       />
 
       <BulkTagsModal
