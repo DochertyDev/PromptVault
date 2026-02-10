@@ -96,6 +96,7 @@ export function importPromptsFromCSV(
     const categoryIndex = headers.indexOf('category');
     const tagsIndex = headers.indexOf('tags');
     const favoriteIndex = headers.indexOf('favorite');
+    const isTemplateIndex = headers.indexOf('istemplate');
 
     if (titleIndex === -1 || contentIndex === -1) {
       errors.push('CSV must contain "Title" and "Content" columns');
@@ -116,6 +117,7 @@ export function importPromptsFromCSV(
         const categoryName = categoryIndex >= 0 ? row[categoryIndex]?.trim() : '';
         const tagsStr = tagsIndex >= 0 ? row[tagsIndex]?.trim() : '';
         const isFavorite = favoriteIndex >= 0 ? row[favoriteIndex]?.toLowerCase() === 'yes' : false;
+        const isTemplate = isTemplateIndex >= 0 ? row[isTemplateIndex]?.toLowerCase() === 'yes' : false;
 
         // Validate required fields
         if (!title || !content) {

@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import PromptCard from './components/PromptCard';
-import EditorModal from './components/EditorModal';
+import { CombinedPromptModal } from './components/CombinedPromptModal';
 import ImportResultModal from './components/ImportResultModal';
 import { TemplateVariableModal } from './components/TemplateVariableModal';
-import { ExpandedPromptModal } from './components/ExpandedPromptModal';
 import { BulkActionsBar } from './components/BulkActionsBar';
 import { BulkTagsModal } from './components/BulkTagsModal';
 import { BulkMoveModal } from './components/BulkMoveModal';
@@ -62,19 +61,18 @@ const App: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   
   // Multi-select and bulk operations
+  const [promptModalOpen, setPromptModalOpen] = useState(false);
+  const [promptModalPrompt, setPromptModalPrompt] = useState<Prompt | null>(null);
   const [selectedPromptIds, setSelectedPromptIds] = useState<Set<string>>(new Set());
   const [showTemplateVariableModal, setShowTemplateVariableModal] = useState(false);
   const [templateToFill, setTemplateFill] = useState<Prompt | null>(null);
   const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
   const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
-  const [expandedPrompt, setExpandedPrompt] = useState<Prompt | null>(null);
   const [groupedSearchResults, setGroupedSearchResults] = useState<GroupedSearchResults>({ categories: [], tags: [], prompts: [] });
 
   // Handle Escape key to clear selection
@@ -227,8 +225,8 @@ const App: React.FC = () => {
   };
 
   const handleEditPrompt = (prompt: Prompt) => {
-    setEditingPrompt(prompt);
-    setIsEditorOpen(true);
+    setPromptModalPrompt(prompt);
+    setPromptModalOpen(true);
   };
 
   const handleToggleFavorite = (id: string) => {
@@ -276,7 +274,8 @@ const App: React.FC = () => {
   };
 
   const handleExpandPrompt = (prompt: Prompt) => {
-    setExpandedPrompt(prompt);
+    setPromptModalPrompt(prompt);
+    setPromptModalOpen(true);
     setSearchQuery(''); // Clear search when expanding a prompt from results
   };
 
@@ -426,8 +425,8 @@ const App: React.FC = () => {
             
             <button
               onClick={() => {
-                setEditingPrompt(null);
-                setIsEditorOpen(true);
+                setPromptModalPrompt(null);
+                setPromptModalOpen(true);
               }}
               className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20 flex-shrink-0"
             >

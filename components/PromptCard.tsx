@@ -39,7 +39,6 @@ const PromptCard: React.FC<PromptCardProps> = ({
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (prompt.isTemplate && onTemplateRequest) {
-      // For templates, open the variable modal instead of direct copy
       onTemplateRequest(prompt);
     } else {
       onCopy(prompt.content);
@@ -126,15 +125,8 @@ const PromptCard: React.FC<PromptCardProps> = ({
           ))}
         </div>
 
-        <div className="flex items-center gap-1 flex-shrink-0 pl-4 border-l border-black-300/50">
+        <div className="flex items-center gap-2 flex-shrink-0 pl-4 border-l border-black-300/50">
            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-2">
-            <button
-              onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
-              className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
-              title="Expand"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
               className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
@@ -161,6 +153,15 @@ const PromptCard: React.FC<PromptCardProps> = ({
             title="Copy Prompt"
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-black-300 hover:bg-black-400 text-gray-300 hover:text-white"
+            title="Expand"
+          >
+            <Maximize2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Expand</span>
           </button>
         </div>
       </div>
@@ -214,13 +215,6 @@ const PromptCard: React.FC<PromptCardProps> = ({
            </button>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
-            className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
-            title="Expand"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
             className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
@@ -277,26 +271,37 @@ const PromptCard: React.FC<PromptCardProps> = ({
             {new Date(prompt.createdAt).toLocaleDateString()}
           </div>
           
-          <button
-            onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-              copied
-                ? 'bg-green-500/20 text-green-400'
-                : 'bg-accent hover:bg-accent-hover text-black shadow-lg shadow-accent/20'
-            }`}
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                Copy
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopy}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                copied
+                  ? 'bg-green-500/20 text-green-400'
+                  : 'bg-accent hover:bg-accent-hover text-black shadow-lg shadow-accent/20'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-black-300 hover:bg-black-400 text-gray-300 hover:text-white"
+              title="Expand Prompt"
+            >
+              <Maximize2 className="w-4 h-4" />
+              Expand
+            </button>
+          </div>
         </div>
       </div>
     </div>

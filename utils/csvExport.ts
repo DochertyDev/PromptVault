@@ -5,7 +5,7 @@ export function exportPromptsToCSV(prompts: Prompt[], categories: Category[]): s
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
   // CSV headers
-  const headers = ['Title', 'Content', 'Category', 'Tags', 'Favorite', 'Created Date', 'Updated Date'];
+  const headers = ['Title', 'Content', 'Category', 'Tags', 'Favorite', 'IsTemplate', 'Created Date', 'Updated Date'];
   const csvContent: string[] = [];
 
   // Add headers
@@ -24,6 +24,7 @@ export function exportPromptsToCSV(prompts: Prompt[], categories: Category[]): s
       `"${escapeCSV(categoryName)}"`,
       `"${escapeCSV(tagsStr)}"`,
       prompt.isFavorite ? 'Yes' : 'No',
+      prompt.isTemplate ? 'Yes' : 'No',
       `"${createdDate}"`,
       `"${updatedDate}"`
     ].join(',');
