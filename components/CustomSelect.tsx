@@ -57,6 +57,7 @@ export function CustomSelect({
   return (
     <div ref={dropdownRef} className={`relative w-full ${className}`}>
       <button
+        type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
@@ -76,6 +77,7 @@ export function CustomSelect({
           <div className="max-h-64 overflow-y-auto">
             {options.map((option) => (
               <button
+                type="button"
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
                 className={`w-full px-4 py-2.5 text-left transition-colors flex items-center justify-between ${
