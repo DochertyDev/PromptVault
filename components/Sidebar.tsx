@@ -114,18 +114,22 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {isAdding && (
-            <form onSubmit={handleAddSubmit} className="mb-2 px-2">
+            <form onSubmit={handleAddSubmit} className="mb-2 px-2 flex gap-2">
               <input
                 autoFocus
                 type="text"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                onBlur={() => {
-                   if(!newCategoryName.trim()) setIsAdding(false);
-                }}
                 placeholder="Name..."
-                className="w-full bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none focus:border-accent"
+                className="flex-1 bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none focus:border-accent"
               />
+              <button
+                type="submit"
+                className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
+                title="Add category"
+              >
+                Add
+              </button>
             </form>
           )}
 
@@ -133,16 +137,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             {categories.map((category) => (
               <div key={category.id} className="relative group">
                 {editingId === category.id ? (
-                  <form onSubmit={(e) => handleEditSubmit(e, category.id)} className="px-2">
+                  <form onSubmit={(e) => handleEditSubmit(e, category.id)} className="px-2 flex gap-2 w-full">
                      <input
                         autoFocus
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        onBlur={() => setEditingId(null)}
                         placeholder="Enter category name"
-                        className="w-full bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none"
+                        className="flex-1 bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none"
                       />
+                      <button
+                        type="submit"
+                        className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
+                        title="Save category"
+                      >
+                        Save
+                      </button>
                   </form>
                 ) : (
                   <button
