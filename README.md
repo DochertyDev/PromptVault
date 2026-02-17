@@ -55,7 +55,7 @@ This tool is ideal for developers, writers, marketers, and anyone who frequently
 
 ### Features
 
--   **Prompt Management:** Create, edit, and delete prompts with rich content.
+-   **Prompt Management:** Create, edit, and delete prompts with a rich markdown editor.
 -   **Category Management:** Organize prompts into custom categories for structured access.
 -   **Tagging System:** Apply multiple tags to prompts for flexible cross-categorization and discoverability.
 -   **Favorites:** Mark important prompts as favorites for quick and easy access.
@@ -71,9 +71,9 @@ To get PromptVault up and running on your local machine, follow these steps.
 
 ### Prerequisites
 
--   Git (for cloning the repository)
--   Node.js (LTS version recommended)
--   npm (Node Package Manager, usually installed with Node.js) or Yarn
+-   **Git** (for cloning the repository)
+-   **Node.js** (LTS version, 18.x or higher recommended)
+-   **npm** (Node Package Manager, usually installed with Node.js) or Yarn
 
 ### Setup Instructions
 
@@ -100,13 +100,33 @@ To get PromptVault up and running on your local machine, follow these steps.
     ```sh
     npm run dev
     ```
-    The application will typically open in your default browser at `http://localhost:3000`.
+    The application will typically open in your default browser at `http://localhost:5173`.
+
+5.  Build for production (optional):
+
+    ```sh
+    npm run build
+    ```
+    This command compiles the application into a production-ready bundle, located in the `dist` directory.
+
+6.  Preview production build (optional):
+
+    ```sh
+    npm run preview
+    ```
+    This will serve the production build locally.
+
+7.  Deploy to GitHub Pages (optional, requires `gh-pages` configuration):
+
+    ```sh
+    npm run deploy
+    ```
 
 ## ⚙️ Usage
 
 PromptVault is designed for intuitive use. Here's a basic guide to get started:
 
-1.  **Add New Prompts:** Click the "New" button (usually a plus icon) to open the editor. Enter your prompt's title, content, select a category, and add relevant tags.
+1.  **Add New Prompts:** Click the "New" button (usually a plus icon) to open the editor. Enter your prompt's title, content (which supports markdown), select a category, and add relevant tags.
 2.  **Organize with Categories & Tags:** Use the sidebar to create and manage categories. Assign categories and tags to your prompts to keep them organized. Click on tags in the sidebar or on prompt cards to filter by them.
 3.  **Search and Filter:** Use the search bar in the header to find prompts by keywords. Utilize the filter options (category, favorites, tags) to narrow down your search.
 4.  **Edit and Delete:** Hover over a prompt card (or click for list view) to reveal edit (pencil icon) and delete (trash icon) options.
@@ -120,6 +140,8 @@ PromptVault is designed for intuitive use. Here's a basic guide to get started:
 -   **Tailwind CSS:** A utility-first CSS framework for rapidly building custom designs.
 -   **Lucide React:** A collection of beautiful open-source icons.
 -   **uuid:** A library for generating unique identifiers.
+-   **react-markdown:** A React component to render Markdown.
+-   **Local Storage:** Browser API used for client-side data persistence.
 
 ## 🔒 Security Notes
 

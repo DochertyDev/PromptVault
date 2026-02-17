@@ -3,6 +3,9 @@ import { X, Copy, Check, Edit, Save } from 'lucide-react';
 import { Prompt, Category } from '../types';
 import { CustomSelect } from './CustomSelect';
 import { TagBadge } from './TagBadge';
+import { MarkdownEditor } from './MarkdownEditor';
+import { MarkdownRenderer } from './MarkdownRenderer';
+import { hasMarkdownSyntax } from '../utils/markdownDetection';
 
 interface CombinedPromptModalProps {
   isOpen: boolean;
@@ -109,6 +112,9 @@ export function CombinedPromptModal({
     });
   };
 
+  // Check if content contains markdown syntax
+  const containsMarkdown = prompt ? hasMarkdownSyntax(prompt.content) : false;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="bg-black-100 border border-black-300 w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
@@ -182,17 +188,11 @@ export function CombinedPromptModal({
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-zinc-300">Prompt Content</label>
-                </div>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Enter your prompt text here..."
-                  className="w-full h-64 bg-black-200 border border-black-300 rounded-lg p-4 text-white font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-                />
-              </div>
+              <MarkdownEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Enter your prompt text here... (Markdown formatting supported)"
+              />
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-zinc-300">Tags (comma separated)</label>
@@ -238,11 +238,19 @@ export function CombinedPromptModal({
               {prompt && (
                 <>
                   <div className="bg-black-200/50 rounded-lg p-6 border border-black-300">
-                    <div className="text-zinc-200 whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                      {prompt.isTemplate
-                        ? renderContentWithHighlightedVariables(prompt.content)
-                        : prompt.content}
-                    </div>
+                    {containsMarkdown && !prompt.isTemplate ? (
+                      <div className="text-zinc-200 leading-relaxed">
+                        <MarkdownRenderer content={prompt.content} />
+                      </div>
+                    ) : prompt.isTemplate ? (
+                      <div className="text-zinc-200 whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                        {renderContentWithHighlightedVariables(prompt.content)}
+                      </div>
+                    ) : (
+                      <div className="text-zinc-200 whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                        {prompt.content}
+                      </div>
+                    )}
                   </div>
 
                   {prompt.tags.length > 0 && (

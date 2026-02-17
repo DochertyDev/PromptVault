@@ -1,0 +1,277 @@
+/* Markdown Content Styling */
+
+.markdown-content {
+  color: #e4e4e7;
+  line-height: 1.7;
+}
+
+.markdown-content > * + * {
+  margin-top: 1rem;
+}
+
+/* Headers */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content h1 {
+  font-size: 1.875rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.3rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.25rem;
+}
+
+.markdown-content h4 {
+  font-size: 1rem;
+}
+
+.markdown-content h5 {
+  font-size: 0.875rem;
+}
+
+.markdown-content h6 {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+/* Paragraphs */
+.markdown-content p {
+  margin-bottom: 1rem;
+  color: #d4d4d8;
+}
+
+/* Links */
+.markdown-content a {
+  color: #6366f1;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.markdown-content a:hover {
+  color: #818cf8;
+}
+
+/* Code (inline and blocks) */
+.markdown-content code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.markdown-content code:not(pre code) {
+  background-color: rgba(51, 65, 85, 0.5);
+  color: #06b6d4;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  white-space: break-spaces;
+}
+
+.markdown-content pre {
+  background-color: rgb(20, 20, 25);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown-content pre code {
+  background: none;
+  color: #d4d4d8;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/* Syntax highlighting for code blocks */
+.markdown-content .hljs {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: #d4d4d8;
+}
+
+.markdown-content .hljs-attr,
+.markdown-content .hljs-attribute {
+  color: #6366f1;
+}
+
+.markdown-content .hljs-string,
+.markdown-content .hljs-literal {
+  color: #84cc16;
+}
+
+.markdown-content .hljs-number {
+  color: #fb923c;
+}
+
+.markdown-content .hljs-keyword {
+  color: #f472b6;
+}
+
+.markdown-content .hljs-function {
+  color: #60a5fa;
+}
+
+.markdown-content .hljs-title {
+  color: #60a5fa;
+}
+
+.markdown-content .hljs-variable {
+  color: #d4d4d8;
+}
+
+.markdown-content .hljs-comment {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ul ul {
+  list-style-type: circle;
+  margin-top: 0.5rem;
+}
+
+.markdown-content ul ul ul {
+  list-style-type: square;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+  color: #d4d4d8;
+}
+
+.markdown-content li > p {
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #6366f1;
+  padding-left: 1rem;
+  color: #a1a1aa;
+  font-style: italic;
+  margin: 1.5rem 0;
+  background-color: rgba(99, 102, 241, 0.05);
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+.markdown-content blockquote p {
+  margin: 0;
+  color: #a1a1aa;
+}
+
+/* Tables */
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  background-color: rgba(20, 20, 25, 0.5);
+}
+
+.markdown-content table tr {
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.markdown-content table tr:hover {
+  background-color: rgba(51, 65, 85, 0.2);
+}
+
+.markdown-content table th {
+  background-color: rgba(51, 65, 85, 0.5);
+  padding: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  color: #f5f5f5;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.markdown-content table td {
+  padding: 0.75rem;
+  color: #d4d4d8;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  border: none;
+  border-top: 2px solid rgba(51, 65, 85, 0.5);
+  margin: 2rem 0;
+}
+
+/* Strikethrough */
+.markdown-content del {
+  color: #71717a;
+  text-decoration: line-through;
+}
+
+/* Task lists (GitHub Flavored Markdown) */
+.markdown-content ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.markdown-content li.task-list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content input.task-list-item-checkbox {
+  margin-right: 0.75rem;
+  accent-color: #6366f1;
+}
+
+/* Variable styling in editor - using CSS for cyan highlight */
+.markdown-editor-input::selection {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+textarea.variable-highlight {
+  color-scheme: dark;
+}
+
+/* Responsive tables */
+@media (max-width: 640px) {
+  .markdown-content table {
+    font-size: 0.75rem;
+  }
+
+  .markdown-content table th,
+  .markdown-content table td {
+    padding: 0.5rem;
+  }
+}

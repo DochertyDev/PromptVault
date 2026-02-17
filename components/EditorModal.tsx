@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Prompt, Category } from '../types';
 import { X, Save } from 'lucide-react';
 import { CustomSelect } from './CustomSelect';
+import { MarkdownEditor } from './MarkdownEditor';
 
 interface EditorModalProps {
   isOpen: boolean;
@@ -110,18 +111,11 @@ const EditorModal: React.FC<EditorModalProps> = ({
             </div>
           </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-zinc-300">Prompt Content</label>
-              </div>
-              <textarea
-                required
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Enter your prompt text here..."
-                className="w-full h-64 bg-black-200 border border-black-300 rounded-lg p-4 text-white font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-              />
-            </div>
+            <MarkdownEditor
+              value={content}
+              onChange={setContent}
+              placeholder="Enter your prompt text here... (Markdown formatting supported)"
+            />
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-zinc-300">Tags (comma separated)</label>
