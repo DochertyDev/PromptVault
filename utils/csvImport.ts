@@ -155,6 +155,7 @@ export function importPromptsFromCSV(
           categoryId,
           tags,
           isFavorite,
+          isTemplate,
           createdAt: now,
           updatedAt: now
         };

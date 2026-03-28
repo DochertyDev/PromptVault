@@ -110,12 +110,12 @@ export function TemplateVariableModal({
                   <label className="block text-sm font-medium text-zinc-300">
                     {varName}
                   </label>
-                  <input
-                    type="text"
+                  <textarea
                     placeholder={`Enter ${varName}...`}
                     value={variables[varName] || ''}
                     onChange={(e) => handleUpdate(varName, e.target.value)}
-                    className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    rows={4}
+                    className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-y"
                   />
                 </div>
               ))}

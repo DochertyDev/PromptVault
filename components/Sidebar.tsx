@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Category } from '../types';
-import { LayoutGrid, Plus, FolderOpen, Trash2, Edit2, Tag, HelpCircle } from 'lucide-react';
+import { LayoutGrid, Plus, FolderOpen, Trash2, Edit2, Tag, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface SidebarProps {
   categories: Category[];
@@ -12,6 +12,8 @@ interface SidebarProps {
   tagCounts: Record<string, number>;
   selectedTag: string | null;
   onSelectTag: (tag: string | null) => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -23,7 +25,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   onEditCategory,
   tagCounts,
   selectedTag,
-  onSelectTag
+  onSelectTag,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -63,82 +67,120 @@ const Sidebar: React.FC<SidebarProps> = ({
   const sortedTags = Object.keys(tagCounts).sort();
 
   return (
-    <aside className="w-64 h-screen bg-black-100 border-r border-black-300 flex flex-col fixed left-0 top-0 overflow-hidden z-20">
-      <div className="p-6 border-b border-black-300">
-        <h1 className="text-xl font-bold text-accent flex items-center gap-2">
-          <LayoutGrid className="w-6 h-6" />
-          PromptVault
-        </h1>
-        <p className="text-xs text-zinc-500 mt-1">Organize your AI genius</p>
+    <aside
+      className={`${isCollapsed ? 'w-16' : 'w-64'} h-screen bg-black-100 border-r border-black-300 flex flex-col fixed left-0 top-0 overflow-hidden z-20 transition-all duration-300`}
+    >
+      {/* Header */}
+      <div className="flex items-center border-b border-black-300 flex-shrink-0 h-[73px] px-4">
+        {isCollapsed ? (
+          <button
+            onClick={onToggleCollapse}
+            title="Expand sidebar"
+            className="w-full flex justify-center p-1.5 rounded-lg text-zinc-500 hover:text-accent hover:bg-black-200 transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-accent flex items-center gap-2">
+                <LayoutGrid className="w-6 h-6 flex-shrink-0" />
+                PromptVault
+              </h1>
+              <p className="text-xs text-zinc-500 mt-1">Organize your AI genius</p>
+            </div>
+            <button
+              onClick={onToggleCollapse}
+              title="Collapse sidebar"
+              className="p-1.5 rounded-lg text-zinc-500 hover:text-accent hover:bg-black-200 transition-colors flex-shrink-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      {/* Scrollable body */}
+      <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'p-2' : 'p-4'} space-y-6`}>
+
+        {/* Library section */}
         <div>
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-2">Library</p>
+          {!isCollapsed && (
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-2">Library</p>
+          )}
           <div className="space-y-1">
             <button
               onClick={() => onSelectCategory(null)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+              title="All Prompts"
+              className={`w-full flex items-center rounded-lg text-sm transition-all duration-200 ${
+                isCollapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2'
+              } ${
                 selectedCategoryId === null
                   ? 'bg-accent-light text-accent font-medium'
                   : 'text-zinc-400 hover:bg-black-200 hover:text-zinc-200'
               }`}
             >
-              <LayoutGrid className="w-4 h-4" />
-              All Prompts
+              <LayoutGrid className="w-4 h-4 flex-shrink-0" />
+              {!isCollapsed && 'All Prompts'}
             </button>
+
             <button
               onClick={() => onSelectCategory('uncategorized')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+              title="Uncategorized"
+              className={`w-full flex items-center rounded-lg text-sm transition-all duration-200 ${
+                isCollapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2'
+              } ${
                 selectedCategoryId === 'uncategorized'
                   ? 'bg-accent-light text-accent font-medium'
                   : 'text-zinc-400 hover:bg-black-200 hover:text-zinc-200'
               }`}
             >
-              <HelpCircle className="w-4 h-4" />
-              Uncategorized
+              <HelpCircle className="w-4 h-4 flex-shrink-0" />
+              {!isCollapsed && 'Uncategorized'}
             </button>
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2 px-2">
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Categories</p>
-            <button
-              onClick={() => setIsAdding(true)}
-              className="text-zinc-500 hover:text-accent transition-colors"
-              title="Add Category"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-
-          {isAdding && (
-            <form onSubmit={handleAddSubmit} className="mb-2 px-2 flex gap-2">
-              <input
-                autoFocus
-                type="text"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Name..."
-                className="flex-1 bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none focus:border-accent"
-              />
+        {/* Categories section -- hidden when collapsed */}
+        {!isCollapsed && (
+          <div>
+            <div className="flex items-center justify-between mb-2 px-2">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Categories</p>
               <button
-                type="submit"
-                className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
-                title="Add category"
+                onClick={() => setIsAdding(true)}
+                className="text-zinc-500 hover:text-accent transition-colors"
+                title="Add Category"
               >
-                Add
+                <Plus className="w-4 h-4" />
               </button>
-            </form>
-          )}
+            </div>
 
-          <div className="space-y-1">
-            {categories.map((category) => (
-              <div key={category.id} className="relative group">
-                {editingId === category.id ? (
-                  <form onSubmit={(e) => handleEditSubmit(e, category.id)} className="px-2 flex gap-2 w-full">
-                     <input
+            {isAdding && (
+              <form onSubmit={handleAddSubmit} className="mb-2 px-2 flex gap-2">
+                <input
+                  autoFocus
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Name..."
+                  className="flex-1 bg-black-200 text-white text-sm px-3 py-2 rounded border border-accent/50 focus:outline-none focus:border-accent"
+                />
+                <button
+                  type="submit"
+                  className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
+                  title="Add category"
+                >
+                  Add
+                </button>
+              </form>
+            )}
+
+            <div className="space-y-1">
+              {categories.map((category) => (
+                <div key={category.id} className="relative group">
+                  {editingId === category.id ? (
+                    <form onSubmit={(e) => handleEditSubmit(e, category.id)} className="px-2 flex gap-2 w-full">
+                      <input
                         autoFocus
                         type="text"
                         value={editName}
@@ -153,49 +195,51 @@ const Sidebar: React.FC<SidebarProps> = ({
                       >
                         Save
                       </button>
-                  </form>
-                ) : (
-                  <button
-                    onClick={() => onSelectCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200 group ${
-                      selectedCategoryId === category.id
-                        ? 'bg-accent-light text-accent font-medium'
-                        : 'text-zinc-400 hover:bg-black-200 hover:text-zinc-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <FolderOpen className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{category.name}</span>
-                    </div>
-                    
-                    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div
-                        onClick={(e) => startEdit(e, category)}
-                        className="p-1 hover:text-blue-400"
-                      >
-                         <Edit2 className="w-3 h-3" />
+                    </form>
+                  ) : (
+                    <button
+                      onClick={() => onSelectCategory(category.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200 group ${
+                        selectedCategoryId === category.id
+                          ? 'bg-accent-light text-accent font-medium'
+                          : 'text-zinc-400 hover:bg-black-200 hover:text-zinc-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <FolderOpen className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{category.name}</span>
                       </div>
-                      <div
-                        onClick={(e) => handleDelete(e, category.id)}
-                        className="p-1 hover:text-red-400"
-                      >
-                         <Trash2 className="w-3 h-3" />
-                      </div>
-                    </div>
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          
-          {categories.length === 0 && !isAdding && (
-            <div className="text-center py-4 px-2">
-              <p className="text-zinc-600 text-xs italic">No categories yet.</p>
-            </div>
-          )}
-        </div>
 
-        {sortedTags.length > 0 && (
+                      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div
+                          onClick={(e) => startEdit(e, category)}
+                          className="p-1 hover:text-blue-400"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </div>
+                        <div
+                          onClick={(e) => handleDelete(e, category.id)}
+                          className="p-1 hover:text-red-400"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {categories.length === 0 && !isAdding && (
+              <div className="text-center py-4 px-2">
+                <p className="text-zinc-600 text-xs italic">No categories yet.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tags section -- hidden when collapsed */}
+        {!isCollapsed && sortedTags.length > 0 && (
           <div>
             <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-2">Tags</p>
             <div className="space-y-1">
@@ -222,12 +266,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
       </div>
-      
-      <div className="p-4 border-t border-black-300">
-         <div className="text-xs text-zinc-600 text-center">
-            v1.1.0 • Local Storage
-         </div>
-      </div>
+
+      {/* Footer */}
+      {!isCollapsed && (
+        <div className="border-t border-black-300 flex-shrink-0 px-4 py-3">
+          <span className="text-xs text-zinc-600">v1.1.0 • Local Storage</span>
+        </div>
+      )}
     </aside>
   );
 };

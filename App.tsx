@@ -75,6 +75,7 @@ const App: React.FC = () => {
   const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
   const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
   const [groupedSearchResults, setGroupedSearchResults] = useState<GroupedSearchResults>({ categories: [], tags: [], prompts: [] });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Handle Escape key to clear selection
   useEffect(() => {
@@ -397,9 +398,11 @@ const App: React.FC = () => {
         tagCounts={tagCounts}
         selectedTag={selectedTag}
         onSelectTag={handleTagClick}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
       />
 
-      <main className="flex-1 ml-64 p-8 max-w-[1920px] pb-24">
+      <main className={`flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} p-8 max-w-[1920px] pb-24 transition-all duration-300`}>
         {/* Header */}
         <header className="mb-8">
           {/* Top Row: Title and Primary Action */}
