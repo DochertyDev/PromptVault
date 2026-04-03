@@ -213,12 +213,12 @@ const WorkflowRunnerModal: React.FC<WorkflowRunnerModalProps> = ({
                           <label className="mb-1.5 block text-sm font-medium text-zinc-300">
                             {name}
                           </label>
-                          <input
-                            type="text"
+                          <textarea
                             value={currentValues[name] || ''}
                             onChange={(e) => updateValue(name, e.target.value)}
                             placeholder={`Enter ${name}`}
-                            className="w-full rounded-lg border border-black-300 bg-black-200 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                            rows={4}
+                            className="w-full rounded-lg border border-black-300 bg-black-200 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30 resize-y"
                           />
                         </div>
                       ))}
