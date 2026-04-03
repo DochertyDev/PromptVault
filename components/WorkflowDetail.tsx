@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
   Copy,
+  Download,
 } from 'lucide-react';
 import { Workflow, WorkflowStepWithPrompt } from '../types';
 
@@ -18,6 +19,7 @@ interface WorkflowDetailProps {
   onEdit: () => void;
   onDelete: () => void;
   onRun: () => void;
+  onExport: () => void;
   onAddPrompt: () => void;
   onRemoveStep: (stepId: string) => void;
   onMoveStep: (stepId: string, direction: -1 | 1) => void;
@@ -30,6 +32,7 @@ const WorkflowDetail: React.FC<WorkflowDetailProps> = ({
   onEdit,
   onDelete,
   onRun,
+  onExport,
   onAddPrompt,
   onRemoveStep,
   onMoveStep,
@@ -53,6 +56,14 @@ const WorkflowDetail: React.FC<WorkflowDetailProps> = ({
             >
               <Plus className="h-4 w-4" />
               Add Prompts
+            </button>
+
+            <button
+              onClick={onExport}
+              className="inline-flex items-center gap-2 rounded-lg border border-black-300 bg-black-200 px-3 py-2 text-sm font-medium text-zinc-300 transition hover:bg-black-300 hover:text-white"
+            >
+              <Download className="h-4 w-4" />
+              Export
             </button>
 
             <button

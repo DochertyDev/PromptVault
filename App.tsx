@@ -12,6 +12,7 @@ import WorkflowDetail from './components/WorkflowDetail';
 import WorkflowEditorModal from './components/WorkflowEditorModal';
 import AddPromptToWorkflowModal from './components/AddPromptToWorkflowModal';
 import WorkflowRunnerModal from './components/WorkflowRunnerModal';
+import WorkflowImportResultModal from './components/WorkflowImportResultModal';
 import useIndexedDB from './hooks/useIndexedDB';
 import {
   Prompt,
@@ -40,6 +41,8 @@ import { generateCSVWithTimestamp, generateCSVWithTimestampForSelected } from '.
 import { importPromptsFromCSV, handleCSVFileUpload, ImportResult } from './utils/csvImport';
 import { searchByQuery } from './utils/searchPrompts';
 import { GroupedSearchResultsComponent } from './components/GroupedSearchResults';
+import { exportWorkflowAsCsv, exportAllWorkflowsAsCsv } from './utils/workflowExport';
+import { importWorkflowsFromCSV, WorkflowImportResult } from './utils/workflowImport';
 
 const INITIAL_CATEGORIES: Category[] = [
   { id: '1', name: 'Coding' },
@@ -107,6 +110,10 @@ const App: React.FC = () => {
   const [showImportResult, setShowImportResult] = useState(false);
   const [importedPromptsCount, setImportedPromptsCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [workflowImportResult, setWorkflowImportResult] = useState<WorkflowImportResult | null>(null);
+  const [showWorkflowImportResult, setShowWorkflowImportResult] = useState(false);
+  const workflowFileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -257,10 +264,7 @@ const App: React.FC = () => {
     setWorkflows((current) =>
       current.map((workflow) =>
         workflow.id === workflowId
-          ? {
-              ...workflow,
-              updatedAt: Date.now(),
-            }
+          ? { ...workflow, updatedAt: Date.now() }
           : workflow
       )
     );
@@ -397,11 +401,7 @@ const App: React.FC = () => {
     setPrompts(
       prompts.map((p) =>
         selectedPromptIds.has(p.id)
-          ? {
-              ...p,
-              categoryId,
-              updatedAt: Date.now(),
-            }
+          ? { ...p, categoryId, updatedAt: Date.now() }
           : p
       )
     );
@@ -497,6 +497,44 @@ const App: React.FC = () => {
     }
   };
 
+  const handleImportWorkflowCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const csvContent = await handleCSVFileUpload(file);
+      const {
+        workflows: updatedWorkflows,
+        workflowSteps: updatedSteps,
+        prompts: updatedPrompts,
+        categories: updatedCategories,
+        result,
+      } = importWorkflowsFromCSV(csvContent, workflows, workflowSteps, prompts, categories);
+
+      setWorkflows(updatedWorkflows);
+      setWorkflowSteps(updatedSteps);
+      setPrompts(updatedPrompts);
+      setCategories(updatedCategories);
+      setWorkflowImportResult(result);
+      setShowWorkflowImportResult(true);
+    } catch (error) {
+      console.error('Error importing workflow CSV:', error);
+      setWorkflowImportResult({
+        success: false,
+        workflowsImported: 0,
+        stepsImported: 0,
+        promptsCreated: 0,
+        errors: [`Error reading file: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        warnings: [],
+      });
+      setShowWorkflowImportResult(true);
+    }
+
+    if (workflowFileInputRef.current) {
+      workflowFileInputRef.current.value = '';
+    }
+  };
+
   const handleSearchCategorySelect = (categoryId: string) => {
     setMainView('prompts');
     setSelectedCategoryId(categoryId);
@@ -527,12 +565,7 @@ const App: React.FC = () => {
       setWorkflows((current) =>
         current.map((workflow) =>
           workflow.id === values.id
-            ? {
-                ...workflow,
-                name: values.name,
-                description: values.description,
-                updatedAt: Date.now(),
-              }
+            ? { ...workflow, name: values.name, description: values.description, updatedAt: Date.now() }
             : workflow
         )
       );
@@ -610,9 +643,7 @@ const App: React.FC = () => {
       const existingPromptIds = new Set(existingForWorkflow.map((step) => step.promptId));
       const uniquePromptIds = promptIds.filter((promptId) => !existingPromptIds.has(promptId));
 
-      if (uniquePromptIds.length === 0) {
-        return current;
-      }
+      if (uniquePromptIds.length === 0) return current;
 
       const newSteps: WorkflowStep[] = uniquePromptIds.map((promptId, index) => ({
         id: uuidv4(),
@@ -669,6 +700,24 @@ const App: React.FC = () => {
 
   const handleRunWorkflow = (workflow: Workflow) => {
     setRunningWorkflow(workflow);
+  };
+
+  const handleExportWorkflow = (workflow: Workflow) => {
+    try {
+      exportWorkflowAsCsv(workflow, workflowSteps, prompts, categories);
+    } catch (error) {
+      console.error('Error exporting workflow:', error);
+      alert('Failed to export workflow. Please try again.');
+    }
+  };
+
+  const handleExportAllWorkflows = () => {
+    try {
+      exportAllWorkflowsAsCsv(workflows, workflowSteps, prompts, categories);
+    } catch (error) {
+      console.error('Error exporting workflows:', error);
+      alert('Failed to export workflows. Please try again.');
+    }
   };
 
   return (
@@ -917,6 +966,7 @@ const App: React.FC = () => {
             onEdit={() => handleOpenEditWorkflow(selectedWorkflow)}
             onDelete={() => handleDeleteWorkflow(selectedWorkflow.id)}
             onRun={() => handleRunWorkflow(selectedWorkflow)}
+            onExport={() => handleExportWorkflow(selectedWorkflow)}
             onAddPrompt={() => handleOpenAddPromptsModal(selectedWorkflow.id)}
             onRemoveStep={handleRemoveWorkflowStep}
             onMoveStep={handleMoveWorkflowStep}
@@ -930,9 +980,21 @@ const App: React.FC = () => {
             onEdit={handleOpenEditWorkflow}
             onDelete={handleDeleteWorkflow}
             onRun={handleRunWorkflow}
+            onExportWorkflow={handleExportWorkflow}
+            onExportAll={handleExportAllWorkflows}
+            onImport={() => workflowFileInputRef.current?.click()}
           />
         )}
       </main>
+
+      {/* Hidden workflow CSV file input */}
+      <input
+        ref={workflowFileInputRef}
+        type="file"
+        accept=".csv"
+        onChange={handleImportWorkflowCSV}
+        className="hidden"
+      />
 
       <CombinedPromptModal
         isOpen={promptModalOpen}
@@ -954,6 +1016,15 @@ const App: React.FC = () => {
         onClose={() => setShowImportResult(false)}
         result={importResult}
         promptsImported={importedPromptsCount}
+      />
+
+      <WorkflowImportResultModal
+        isOpen={showWorkflowImportResult}
+        result={workflowImportResult}
+        onClose={() => {
+          setShowWorkflowImportResult(false);
+          setWorkflowImportResult(null);
+        }}
       />
 
       <TemplateVariableModal

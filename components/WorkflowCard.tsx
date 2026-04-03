@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pencil, Play, Trash2, ArrowRight } from 'lucide-react';
+import { Pencil, Play, Trash2, ArrowRight, Download } from 'lucide-react';
 import { Workflow } from '../types';
 
 interface WorkflowCardProps {
@@ -9,6 +9,7 @@ interface WorkflowCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onRun: () => void;
+  onExport: () => void;
 }
 
 const WorkflowCard: React.FC<WorkflowCardProps> = ({
@@ -18,6 +19,7 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
   onEdit,
   onDelete,
   onRun,
+  onExport,
 }) => {
   return (
     <div className="rounded-2xl border border-black-300 bg-black-100 p-5 shadow-lg transition hover:border-accent/40">
@@ -30,6 +32,13 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1">
+          <button
+            onClick={onExport}
+            className="rounded-lg p-2 text-zinc-400 transition hover:bg-black-200 hover:text-white"
+            title="Export workflow"
+          >
+            <Download className="h-4 w-4" />
+          </button>
           <button
             onClick={onEdit}
             className="rounded-lg p-2 text-zinc-400 transition hover:bg-black-200 hover:text-white"
