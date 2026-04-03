@@ -281,16 +281,24 @@ const WorkflowRunnerModal: React.FC<WorkflowRunnerModalProps> = ({
               Previous
             </button>
 
-            <button
-              onClick={goNext}
-              disabled={
-                runState.currentStepIndex === steps.length - 1 || !allVariablesFilled
-              }
-              className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-black transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            {runState.currentStepIndex === steps.length - 1 ? (
+              <button
+                onClick={onClose}
+                className="flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-500 px-4 py-2.5 text-sm font-medium text-white transition"
+              >
+                <Check className="h-4 w-4" />
+                Finish
+              </button>
+            ) : (
+              <button
+                onClick={goNext}
+                disabled={!allVariablesFilled}
+                className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-black transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
           </div>
         )}
       </div>
