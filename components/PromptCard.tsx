@@ -111,7 +111,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
         </div>
 
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-             {prompt.tags.slice(0, 3).map(tag => (
+          {prompt.tags.slice(0, 3).map(tag => (
             <button 
               key={tag} 
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
@@ -126,7 +126,8 @@ const PromptCard: React.FC<PromptCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0 pl-4 border-l border-black-300/50">
-           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-2">
+          {/* Desktop: hover-reveal. Mobile: always visible */}
+          <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity mr-2">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
               className="p-2 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
@@ -143,7 +144,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
             </button>
           </div>
           
-           <button
+          <button
             onClick={handleCopy}
             className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${
               copied
@@ -171,7 +172,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
   return (
     <div 
       onClick={handleCardClick}
-      className={`group bg-black-200 backdrop-blur-sm border rounded-xl p-5 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/10 cursor-pointer ${
+      className={`group bg-black-200 backdrop-blur-sm border rounded-xl p-4 md:p-5 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/10 cursor-pointer ${
         isSelected
           ? 'border-accent bg-accent/5 shadow-accent/20'
           : 'border-black-300 hover:border-accent'
@@ -196,7 +197,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
              </button>
            )}
            <div className="flex flex-col">
-             <h3 className="text-lg font-semibold text-zinc-100 line-clamp-1" title={prompt.title}>
+             <h3 className="text-base md:text-lg font-semibold text-zinc-100 line-clamp-1" title={prompt.title}>
                 {prompt.title}
              </h3>
              {prompt.isTemplate && (
@@ -214,7 +215,8 @@ const PromptCard: React.FC<PromptCardProps> = ({
               <Star className="w-4 h-4" fill={prompt.isFavorite ? "currentColor" : "none"} />
            </button>
         </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Desktop: hover-reveal. Mobile: always visible */}
+        <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(prompt); }}
             className="p-1.5 text-zinc-400 hover:text-accent hover:bg-accent-light rounded transition-colors"
@@ -274,7 +276,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 copied
                   ? 'bg-green-500/20 text-green-400'
                   : 'bg-accent hover:bg-accent-hover text-black shadow-lg shadow-accent/20'
@@ -283,23 +285,23 @@ const PromptCard: React.FC<PromptCardProps> = ({
               {copied ? (
                 <>
                   <Check className="w-4 h-4" />
-                  Copied
+                  <span className="hidden sm:inline">Copied</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  Copy
+                  <span className="hidden sm:inline">Copy</span>
                 </>
               )}
             </button>
 
             <button
               onClick={(e) => { e.stopPropagation(); onExpand?.(prompt); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-black-300 hover:bg-black-400 text-gray-300 hover:text-white"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-black-300 hover:bg-black-400 text-gray-300 hover:text-white"
               title="Expand Prompt"
             >
               <Maximize2 className="w-4 h-4" />
-              Expand
+              <span className="hidden sm:inline">Expand</span>
             </button>
           </div>
         </div>
