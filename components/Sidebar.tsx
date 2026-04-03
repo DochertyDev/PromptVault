@@ -68,7 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  // Close mobile sidebar after selecting a category/tag
   const handleSelectCategory = (id: string | null) => {
     onSelectCategory(id);
     onMobileClose();
@@ -81,6 +80,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const sortedTags = Object.keys(tagCounts).sort();
 
+  // Build aside class string without inline comments (Tailwind purge-safe)
+  const desktopWidth = isCollapsed ? 'md:w-16' : 'md:w-64';
+  const mobileTranslate = isMobileOpen ? 'translate-x-0' : '-translate-x-full';
+
   return (
     <>
       {/* Mobile backdrop overlay */}
@@ -88,21 +91,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div
           className="fixed inset-0 bg-black/60 z-30 md:hidden"
           onClick={onMobileClose}
+          aria-hidden="true"
         />
       )}
 
       <aside
-        className={`
-          h-screen bg-black-100 border-r border-black-300 flex flex-col fixed left-0 top-0 overflow-hidden z-40 transition-all duration-300
-          // Desktop: collapse/expand behaviour unchanged
-          md:${isCollapsed ? 'w-16' : 'w-64'} md:translate-x-0
-          // Mobile: always full-width drawer, slides in/out
-          w-72 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
-        `}
+        className={`h-screen bg-black-100 border-r border-black-300 flex flex-col fixed left-0 top-0 overflow-hidden z-40 transition-all duration-300 w-72 md:translate-x-0 ${mobileTranslate} ${desktopWidth}`}
       >
         {/* Header */}
         <div className="flex items-center border-b border-black-300 flex-shrink-0 h-[73px] px-4">
-          {/* Desktop collapsed state */}
           {isCollapsed ? (
             <div className="hidden md:flex w-full justify-center">
               <button
@@ -115,8 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           ) : null}
 
-          {/* Expanded state — desktop and mobile */}
-          {(!isCollapsed) && (
+          {!isCollapsed && (
             <>
               <div className="flex-1">
                 <h1 className="text-xl font-bold text-accent flex items-center gap-2">
@@ -133,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              {/* Mobile: close button */}
+              {/* Mobile: close (X) button */}
               <button
                 onClick={onMobileClose}
                 title="Close menu"
@@ -148,9 +144,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Scrollable body */}
         <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'md:p-2 p-4' : 'p-4'} space-y-6`}>
 
-          {/* Library section */}
+          {/* Library */}
           <div>
-            {(!isCollapsed) && (
+            {!isCollapsed && (
               <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-2">Library</p>
             )}
             <div className="space-y-1">
@@ -166,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }`}
               >
                 <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-                {(!isCollapsed) && 'All Prompts'}
+                {!isCollapsed && 'All Prompts'}
               </button>
 
               <button
@@ -181,13 +177,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }`}
               >
                 <HelpCircle className="w-4 h-4 flex-shrink-0" />
-                {(!isCollapsed) && 'Uncategorized'}
+                {!isCollapsed && 'Uncategorized'}
               </button>
             </div>
           </div>
 
-          {/* Categories section */}
-          {(!isCollapsed) && (
+          {/* Categories */}
+          {!isCollapsed && (
             <div>
               <div className="flex items-center justify-between mb-2 px-2">
                 <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Categories</p>
@@ -213,7 +209,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     type="submit"
                     className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
-                    title="Add category"
                   >
                     Add
                   </button>
@@ -236,7 +231,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <button
                           type="submit"
                           className="px-3 py-2 bg-accent hover:bg-accent-hover text-black text-sm font-medium rounded transition-colors flex-shrink-0"
-                          title="Save category"
                         >
                           Save
                         </button>
@@ -254,19 +248,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                           <FolderOpen className="w-4 h-4 flex-shrink-0" />
                           <span className="truncate">{category.name}</span>
                         </div>
-
-                        {/* Desktop: hover-reveal edit/delete. Mobile: always visible */}
+                        {/* Mobile: always visible. Desktop: hover-reveal */}
                         <div className="flex items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                          <div
-                            onClick={(e) => startEdit(e, category)}
-                            className="p-1 hover:text-blue-400"
-                          >
+                          <div onClick={(e) => startEdit(e, category)} className="p-1 hover:text-blue-400">
                             <Edit2 className="w-3 h-3" />
                           </div>
-                          <div
-                            onClick={(e) => handleDelete(e, category.id)}
-                            className="p-1 hover:text-red-400"
-                          >
+                          <div onClick={(e) => handleDelete(e, category.id)} className="p-1 hover:text-red-400">
                             <Trash2 className="w-3 h-3" />
                           </div>
                         </div>
@@ -284,8 +271,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
-          {/* Tags section */}
-          {(!isCollapsed) && sortedTags.length > 0 && (
+          {/* Tags */}
+          {!isCollapsed && sortedTags.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-2">Tags</p>
               <div className="space-y-1">
@@ -314,7 +301,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer */}
-        {(!isCollapsed) && (
+        {!isCollapsed && (
           <div className="border-t border-black-300 flex-shrink-0 px-4 py-3">
             <span className="text-xs text-zinc-600">v1.1.0 • Local Storage</span>
           </div>
