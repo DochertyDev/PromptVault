@@ -34,6 +34,7 @@ import {
   Download,
   Upload,
   GitBranch,
+  Menu,
 } from 'lucide-react';
 import { CustomSelect } from './components/CustomSelect';
 import { v4 as uuidv4 } from 'uuid';
@@ -131,6 +132,8 @@ const App: React.FC = () => {
   const [showBulkTagsModal, setShowBulkTagsModal] = useState(false);
   const [showBulkMoveModal, setShowBulkMoveModal] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Mobile sidebar drawer state
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [showWorkflowEditor, setShowWorkflowEditor] = useState(false);
   const [workflowToEdit, setWorkflowToEdit] = useState<Workflow | null>(null);
@@ -734,56 +737,73 @@ const App: React.FC = () => {
         onSelectTag={handleTagClick}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
+        isMobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      <main className={`flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} p-8 max-w-[1920px] pb-24 transition-all duration-300`}>
-        <header className="mb-8">
-          <div className="flex items-center justify-between mb-6 gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <div className="flex items-center bg-black-200 border border-black-300 rounded-lg p-1">
-                  <button
-                    onClick={() => setMainView('prompts')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      mainView === 'prompts' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    Prompts
-                  </button>
-                  <button
-                    onClick={() => setMainView('workflows')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      mainView === 'workflows' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    Workflows
-                  </button>
-                </div>
+      {/* Main content — desktop accounts for sidebar width; mobile fills full width */}
+      <main className={`flex-1 md:${
+        sidebarCollapsed ? 'ml-16' : 'ml-64'
+      } p-4 md:p-8 max-w-[1920px] pb-24 transition-all duration-300`}>
 
-                {mainView === 'prompts' && selectedTag && (
-                  <div className="flex items-center gap-1 px-3 py-1 bg-accent-light text-accent rounded-full text-sm font-medium border border-accent/30">
-                    <Filter className="w-3 h-3" />
-                    <span>{selectedTag}</span>
+        <header className="mb-6 md:mb-8">
+          <div className="flex items-center justify-between mb-4 md:mb-6 gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Hamburger — mobile only */}
+              <button
+                onClick={() => setMobileSidebarOpen(true)}
+                className="md:hidden p-2 rounded-lg text-zinc-400 hover:text-accent hover:bg-black-200 transition-colors flex-shrink-0"
+                title="Open menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 flex-wrap">
+                  <div className="flex items-center bg-black-200 border border-black-300 rounded-lg p-1">
                     <button
-                      onClick={() => setSelectedTag(null)}
-                      className="ml-1 hover:text-white"
-                      title="Clear tag filter"
+                      onClick={() => setMainView('prompts')}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        mainView === 'prompts' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'
+                      }`}
                     >
-                      <XCircle className="w-4 h-4" />
+                      Prompts
+                    </button>
+                    <button
+                      onClick={() => setMainView('workflows')}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        mainView === 'workflows' ? 'bg-accent-light text-accent' : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      Workflows
                     </button>
                   </div>
-                )}
-              </div>
 
-              <h1 className="text-3xl font-bold text-white mb-2">{getHeaderTitle()}</h1>
-              <p className="text-zinc-400 text-sm">{getHeaderSubtitle()}</p>
+                  {mainView === 'prompts' && selectedTag && (
+                    <div className="flex items-center gap-1 px-3 py-1 bg-accent-light text-accent rounded-full text-sm font-medium border border-accent/30">
+                      <Filter className="w-3 h-3" />
+                      <span>{selectedTag}</span>
+                      <button
+                        onClick={() => setSelectedTag(null)}
+                        className="ml-1 hover:text-white"
+                        title="Clear tag filter"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2 truncate">{getHeaderTitle()}</h1>
+                <p className="text-zinc-400 text-sm">{getHeaderSubtitle()}</p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-2 flex-wrap justify-end flex-shrink-0">
               {mainView === 'prompts' && selectedPromptIds.size > 0 && (
                 <button
                   onClick={() => handleOpenCreateWorkflow(Array.from(selectedPromptIds))}
-                  className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-4 py-2.5 rounded-lg font-medium transition-colors border border-black-300"
+                  className="hidden sm:flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-4 py-2.5 rounded-lg font-medium transition-colors border border-black-300"
                 >
                   <GitBranch className="w-4 h-4" />
                   <span>Workflow from Selection</span>
@@ -807,7 +827,7 @@ const App: React.FC = () => {
                   {selectedWorkflow && (
                     <button
                       onClick={() => handleOpenAddPromptsModal(selectedWorkflow.id)}
-                      className="flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-4 py-2.5 rounded-lg font-medium transition-colors border border-black-300"
+                      className="hidden sm:flex items-center gap-2 bg-black-200 hover:bg-black-300 text-zinc-300 hover:text-accent px-4 py-2.5 rounded-lg font-medium transition-colors border border-black-300"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Prompts</span>
@@ -819,7 +839,8 @@ const App: React.FC = () => {
                     className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-black px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-accent/20"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>New Workflow</span>
+                    <span className="hidden sm:inline">New Workflow</span>
+                    <span className="sm:hidden">New</span>
                   </button>
                 </>
               )}
@@ -827,8 +848,8 @@ const App: React.FC = () => {
           </div>
 
           {mainView === 'prompts' && (
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative flex-1 min-w-48">
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                 <input
                   type="text"
@@ -839,7 +860,7 @@ const App: React.FC = () => {
                 />
               </div>
 
-              <div className="w-40">
+              <div className="w-36 md:w-40">
                 <CustomSelect
                   value={sortOption}
                   onChange={(value) => setSortOption(value as SortOption)}
@@ -926,7 +947,7 @@ const App: React.FC = () => {
               onSelectPrompt={handleExpandPrompt}
             />
           ) : filteredPrompts.length > 0 ? (
-            <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6' : 'space-y-4'}>
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6' : 'space-y-3 md:space-y-4'}>
               {filteredPrompts.map((prompt) => (
                 <div key={prompt.id} className={viewMode === 'list' ? 'max-w-4xl mx-auto w-full' : ''}>
                   <PromptCard
