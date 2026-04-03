@@ -1,7 +1,7 @@
 export interface Category {
   id: string;
   name: string;
-  icon?: string; // Icon name from Lucide
+  icon?: string;
 }
 
 export interface Prompt {
@@ -33,4 +33,34 @@ export interface Toast {
   id: string;
   message: string;
   type: 'success' | 'error' | 'info';
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface WorkflowStep {
+  id: string;
+  workflowId: string;
+  promptId: string;
+  order: number;
+  titleOverride?: string;
+  notes?: string;
+}
+
+export interface WorkflowStepWithPrompt {
+  step: WorkflowStep;
+  prompt: Prompt;
+}
+
+export type MainView = 'prompts' | 'workflows';
+
+export interface WorkflowRunState {
+  workflowId: string;
+  currentStepIndex: number;
+  valuesByStepId: Record<string, TemplateFillValues>;
 }
