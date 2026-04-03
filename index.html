@@ -16,6 +16,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        // Safelist ensures dynamically-computed classes (sidebar drawer width/translate)
+        // are never dropped — important if the project is ever migrated to a build-time
+        // Tailwind setup (postcss / vite plugin) where purging could remove them.
+        safelist: [
+          'w-72',
+          'md:w-16',
+          'md:w-64',
+          'translate-x-0',
+          '-translate-x-full',
+          'md:translate-x-0',
+        ],
         theme: {
           extend: {
             colors: {
