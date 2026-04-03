@@ -40,11 +40,14 @@ export function TemplateVariableModal({
   const handleSubmit = () => {
     let filledContent = content;
 
-    // Replace all {variable} with their values
+    // Replace all {variable} with their values.
+    // Escape special regex characters in varName so names like
+    // "Topic 2 (optional)" don't break the pattern.
     varNames.forEach((varName) => {
       const value = variables[varName] || '';
+      const escapedVarName = varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filledContent = filledContent.replace(
-        new RegExp(`\\{${varName}\\}`, 'g'),
+        new RegExp(`\\{${escapedVarName}\\}`, 'g'),
         value
       );
     });
