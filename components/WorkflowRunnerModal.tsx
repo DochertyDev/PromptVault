@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Copy, Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Workflow, WorkflowRunState, WorkflowStepWithPrompt, TemplateFillValues } from '../types';
+import { extractVariables, renderTemplate } from '../utils/templateVariables';
+import { Workflow, WorkflowRunState, WorkflowStepWithPrompt } from '../types';
 
 interface WorkflowRunnerModalProps {
   isOpen: boolean;
@@ -8,18 +9,6 @@ interface WorkflowRunnerModalProps {
   steps: WorkflowStepWithPrompt[];
   onClose: () => void;
 }
-
-const extractVariables = (content: string): string[] => {
-  const matches = [...content.matchAll(/\{([^{}]+)\}/g)].map((match) => match[1].trim());
-  return [...new Set(matches.filter(Boolean))];
-};
-
-const renderTemplate = (content: string, values: TemplateFillValues): string => {
-  return content.replace(/\{([^{}]+)\}/g, (_, key) => {
-    const trimmedKey = String(key).trim();
-    return values[trimmedKey] ?? `{${trimmedKey}}`;
-  });
-};
 
 const WorkflowRunnerModal: React.FC<WorkflowRunnerModalProps> = ({
   isOpen,
@@ -78,7 +67,7 @@ const WorkflowRunnerModal: React.FC<WorkflowRunnerModalProps> = ({
 
   const allVariablesFilled =
     !currentStep?.prompt.isTemplate ||
-    variableNames.every((name) => (currentValues[name] || '').trim().length > 0);
+    variableNames.every((name) => Object.prototype.hasOwnProperty.call(currentValues, name) && currentValues[name].trim().length > 0);
 
   const updateValue = (name: string, value: string) => {
     if (!currentStep) return;
@@ -214,7 +203,7 @@ const WorkflowRunnerModal: React.FC<WorkflowRunnerModalProps> = ({
                             {name}
                           </label>
                           <textarea
-                            value={currentValues[name] || ''}
+                            value={Object.prototype.hasOwnProperty.call(currentValues, name) ? currentValues[name] : ''}
                             onChange={(e) => updateValue(name, e.target.value)}
                             placeholder={`Enter ${name}`}
                             rows={4}
