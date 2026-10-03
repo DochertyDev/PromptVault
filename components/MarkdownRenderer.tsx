@@ -49,34 +49,25 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               className="text-accent hover:text-accent-hover underline"
             />
           ),
-          // Style code blocks
-          code: ({ node, inline, children, className, ...props }) => {
-            if (inline) {
-              return (
-                <code
-                  {...props}
-                  className="bg-black-300 text-cyan-300 px-1.5 py-0.5 rounded font-mono text-sm"
-                >
-                  {typeof children === 'string'
-                    ? highlightVariables(children as string)
-                    : children}
-                </code>
-              );
-            }
-            // For code blocks, don't try to highlight variables - just render the code
-            return (
-              <code {...props} className={`${className || 'hljs'}`}>
-                {children}
-              </code>
-            );
-          },
-          // Style pre blocks
+          // Inline code is rendered here; fenced code is handled by its pre parent.
+          code: ({ node, children, className, ...props }) => (
+            <code
+              {...props}
+              className={className || 'bg-black-300 text-cyan-300 px-1.5 py-0.5 rounded font-mono text-sm'}
+            >
+              {typeof children === 'string' ? highlightVariables(children) : children}
+            </code>
+          ),
+          // Render the original fenced-code children without inline decorations.
           pre: ({ node, children, ...props }) => (
             <pre
               {...props}
               className="bg-black-300 border border-black-400 rounded-lg p-4 overflow-x-auto my-4 text-sm"
             >
-              {children}
+              {React.Children.map(children, child => {
+                if (!React.isValidElement<React.HTMLAttributes<HTMLElement>>(child)) return child;
+                return <code className={child.props.className || 'hljs'}>{child.props.children}</code>;
+              })}
             </pre>
           ),
           // Style headers
