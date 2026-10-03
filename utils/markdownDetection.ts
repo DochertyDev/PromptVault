@@ -45,7 +45,7 @@ export function hasMarkdownSyntaxCached(content: string): boolean {
   // Limit cache size to prevent memory issues
   if (detectionCache.size > 1000) {
     const firstKey = detectionCache.keys().next().value;
-    detectionCache.delete(firstKey);
+    if (firstKey !== undefined) detectionCache.delete(firstKey);
   }
 
   return result;

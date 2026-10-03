@@ -77,6 +77,10 @@ To get PromptVault up and running on your local machine, follow these steps.
 
 ### Prerequisites
 
+Contributors should run `npx tsc --noEmit`, `node --test tests/markdown.test.mjs`,
+and `npm run build` before submitting changes. Pull requests run these checks in
+CI using Node.js 22 and the committed dependency lockfile.
+
 -   **Git** (for cloning the repository)
 -   **Node.js** (LTS version, 18.x or higher recommended)
 -   **npm** (Node Package Manager, usually installed with Node.js) or Yarn
