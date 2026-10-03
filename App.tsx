@@ -100,10 +100,10 @@ const reindexWorkflowSteps = (steps: WorkflowStep[]): WorkflowStep[] => {
 };
 
 const App: React.FC = () => {
-  const [categories, setCategories] = useIndexedDB<Category[]>('pv_categories', INITIAL_CATEGORIES);
-  const [prompts, setPrompts] = useIndexedDB<Prompt[]>('pv_prompts', INITIAL_PROMPTS);
-  const [workflows, setWorkflows] = useIndexedDB<Workflow[]>('pv_workflows', []);
-  const [workflowSteps, setWorkflowSteps] = useIndexedDB<WorkflowStep[]>('pv_workflow_steps', []);
+  const [categories, setCategories, categoriesLoaded] = useIndexedDB<Category[]>('pv_categories', INITIAL_CATEGORIES);
+  const [prompts, setPrompts, promptsLoaded] = useIndexedDB<Prompt[]>('pv_prompts', INITIAL_PROMPTS);
+  const [workflows, setWorkflows, workflowsLoaded] = useIndexedDB<Workflow[]>('pv_workflows', []);
+  const [workflowSteps, setWorkflowSteps, workflowStepsLoaded] = useIndexedDB<WorkflowStep[]>('pv_workflow_steps', []);
 
   const [mainView, setMainView] = useState<MainView>('prompts');
 
@@ -722,6 +722,14 @@ const App: React.FC = () => {
       alert('Failed to export workflows. Please try again.');
     }
   };
+
+  if (!categoriesLoaded || !promptsLoaded || !workflowsLoaded || !workflowStepsLoaded) {
+    return (
+      <div role="status" className="min-h-screen flex items-center justify-center bg-black text-zinc-400">
+        Loading your vault…
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full bg-black text-zinc-100">

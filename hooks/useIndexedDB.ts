@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const DB_NAME = 'PromptVaultDB';
 const STORE_NAME = 'promptvault_store';
@@ -7,98 +7,104 @@ const DB_VERSION = 1;
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
     };
   });
 }
 
-function useIndexedDB<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
-  const [isLoaded, setIsLoaded] = useState(false);
+async function readDatabase<T>(key: string): Promise<T | undefined> {
+  const db = await openDatabase();
+  try {
+    return await new Promise<T | undefined>((resolve, reject) => {
+      const transaction = db.transaction(STORE_NAME, 'readonly');
+      const request = transaction.objectStore(STORE_NAME).get(key);
+      transaction.oncomplete = () => resolve(request.result);
+      transaction.onabort = () => reject(transaction.error || request.error);
+      transaction.onerror = () => reject(transaction.error || request.error);
+    });
+  } finally {
+    db.close();
+  }
+}
 
-  // Read from IndexedDB on mount
+async function writeDatabase<T>(key: string, value: T): Promise<void> {
+  const db = await openDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(STORE_NAME, 'readwrite');
+      const request = transaction.objectStore(STORE_NAME).put(value, key);
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () => reject(transaction.error || request.error);
+      transaction.onerror = () => reject(transaction.error || request.error);
+    });
+  } finally {
+    db.close();
+  }
+}
+
+function readBackup<T>(key: string, initialValue: T): T {
+  try {
+    const item = window.localStorage.getItem(key);
+    return item === null ? initialValue : JSON.parse(item);
+  } catch (error) {
+    console.warn(`Error reading localStorage key "${key}":`, error);
+    return initialValue;
+  }
+}
+
+function useIndexedDB<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void, boolean] {
+  const [state, setState] = useState({ key, value: initialValue, loaded: false });
+  const current = useRef(state);
+  const writes = useRef<Promise<void>>(Promise.resolve());
+
   useEffect(() => {
-    const loadFromDB = async () => {
+    let cancelled = false;
+    current.current = { key, value: initialValue, loaded: false };
+    setState(current.current);
+
+    const load = async () => {
+      let value: T;
       try {
-        const db = await openDatabase();
-        const transaction = db.transaction(STORE_NAME, 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(key);
-
-        request.onsuccess = () => {
-          if (request.result !== undefined) {
-            setStoredValue(request.result);
-          } else {
-            // Fall back to localStorage if IndexedDB is empty
-            try {
-              const item = window.localStorage.getItem(key);
-              if (item) {
-                const parsed = JSON.parse(item);
-                setStoredValue(parsed);
-              }
-            } catch (error) {
-              console.warn(`Error reading from localStorage key "${key}":`, error);
-            }
-          }
-          setIsLoaded(true);
-        };
-
-        request.onerror = () => {
-          console.warn(`Error reading from IndexedDB key "${key}":`, request.error);
-          setIsLoaded(true);
-        };
+        const stored = await readDatabase<T>(key);
+        value = stored !== undefined ? stored : readBackup(key, initialValue);
       } catch (error) {
-        console.warn(`Failed to open IndexedDB:`, error);
-        setIsLoaded(true);
+        console.warn('Failed to read IndexedDB:', error);
+        value = readBackup(key, initialValue);
       }
+      if (cancelled) return;
+      current.current = { key, value, loaded: true };
+      setState(current.current);
     };
-
-    loadFromDB();
+    void load();
+    return () => { cancelled = true; };
   }, [key]);
 
-  // Write to both IndexedDB and localStorage
   const setValue = (value: T | ((val: T) => T)) => {
+    // The app hides editing controls during hydration; also guard direct callers.
+    if (!current.current.loaded || current.current.key !== key) return;
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-
-      // Save to IndexedDB
-      openDatabase()
-        .then((db) => {
-          const transaction = db.transaction(STORE_NAME, 'readwrite');
-          const store = transaction.objectStore(STORE_NAME);
-          store.put(valueToStore, key);
-        })
-        .catch((error) => {
-          console.warn(`Error writing to IndexedDB key "${key}":`, error);
-          // Fall back to localStorage if IndexedDB fails
-          try {
-            window.localStorage.setItem(key, JSON.stringify(valueToStore));
-          } catch (storageError) {
-            console.warn(`Error writing to localStorage key "${key}":`, storageError);
-          }
-        });
-
-      // Also save to localStorage as backup
+      const valueToStore = value instanceof Function ? value(current.current.value) : value;
+      current.current = { key, value: valueToStore, loaded: true };
+      setState(current.current);
       try {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.warn(`Error writing to localStorage key "${key}":`, error);
+        console.warn(`Error writing localStorage key "${key}":`, error);
       }
+      // Serialize writes so an older connection cannot commit after a newer update.
+      writes.current = writes.current
+        .then(() => writeDatabase(key, valueToStore))
+        .catch(error => { console.warn(`Error writing IndexedDB key "${key}":`, error); });
     } catch (error) {
-      console.warn(`Error in setValue for key "${key}":`, error);
+      console.warn(`Error setting storage key "${key}":`, error);
     }
   };
 
-  return [storedValue, setValue];
+  return [state.value, setValue, state.key === key && state.loaded];
 }
 
 export default useIndexedDB;
