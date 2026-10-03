@@ -131,7 +131,7 @@ export function importWorkflowsFromCSV(
 
       for (const row of sortedStepRows) {
         const promptTitle = row[idxPromptTitle]?.trim();
-        const promptContent = idxPromptContent >= 0 ? row[idxPromptContent]?.trim() : '';
+        const promptContent = idxPromptContent >= 0 ? row[idxPromptContent] : '';
 
         if (!promptTitle) {
           warnings.push(`Workflow "${workflowName}": Skipped a step with no prompt title.`);
@@ -142,7 +142,7 @@ export function importWorkflowsFromCSV(
         let promptId = promptLookup.get(promptTitle.toLowerCase());
 
         if (!promptId) {
-          if (!promptContent) {
+          if (!promptContent?.trim()) {
             warnings.push(`Workflow "${workflowName}" step ${stepOrder}: Prompt "${promptTitle}" not found and has no content to create from. Step skipped.`);
             continue;
           }
@@ -170,11 +170,11 @@ export function importWorkflowsFromCSV(
             : [];
 
           const isTemplate = idxPromptIsTemplate >= 0
-            ? row[idxPromptIsTemplate]?.toLowerCase() === 'true'
+            ? row[idxPromptIsTemplate]?.trim().toLowerCase() === 'true'
             : false;
 
           const isFavorite = idxPromptIsFavorite >= 0
-            ? row[idxPromptIsFavorite]?.toLowerCase() === 'true'
+            ? row[idxPromptIsFavorite]?.trim().toLowerCase() === 'true'
             : false;
 
           const newPrompt: Prompt = {
