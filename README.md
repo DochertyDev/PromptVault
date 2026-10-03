@@ -130,6 +130,12 @@ To get PromptVault up and running on your local machine, follow these steps.
 
 ## ⚙️ Usage
 
+### Development validation
+
+Run `npm test` for CSV import regression tests, `npx tsc --noEmit` for type checking,
+and `npm run build` for a production build. Tests use Node's built-in test runner
+and the project's TypeScript compiler; no additional test dependency is required.
+
 PromptVault is designed for intuitive use. Here's a basic guide to get started:
 
 1.  **Add New Prompts:** Click the "New" button (usually a plus icon) to open the editor. Enter your prompt's title, content (which supports markdown), select a category, and add relevant tags. Enable the **Template** toggle if your prompt contains `{variable}` placeholders.

@@ -9,61 +9,40 @@ export interface ImportResult {
 }
 
 export function parseCSV(csvContent: string): string[][] {
-  const lines = csvContent.split('\n');
   const rows: string[][] = [];
   let insideQuotes = false;
   let currentRow: string[] = [];
   let currentCell = '';
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  const finishRow = () => {
+    currentRow.push(currentCell);
+    if (currentRow.some(cell => cell.trim().length > 0)) rows.push(currentRow);
+    currentRow = [];
+    currentCell = '';
+  };
 
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      const nextChar = line[j + 1];
-
-      if (char === '"') {
-        if (nextChar === '"') {
-          // Escaped quote
-          currentCell += '"';
-          j++; // Skip next quote
-        } else {
-          // Toggle quote state
-          insideQuotes = !insideQuotes;
-        }
-      } else if (char === ',' && !insideQuotes) {
-        // End of cell
-        currentRow.push(currentCell.trim());
-        currentCell = '';
+  for (let i = 0; i < csvContent.length; i++) {
+    const char = csvContent[i];
+    if (char === '"') {
+      if (insideQuotes && csvContent[i + 1] === '"') {
+        currentCell += '"';
+        i++;
       } else {
-        currentCell += char;
+        insideQuotes = !insideQuotes;
       }
-    }
-
-    // Handle line end
-    if (!insideQuotes) {
-      if (currentCell.length > 0 || currentRow.length > 0) {
-        currentRow.push(currentCell.trim());
-        if (currentRow.some(cell => cell.length > 0)) {
-          rows.push(currentRow);
-        }
-      }
+    } else if (char === ',' && !insideQuotes) {
+      currentRow.push(currentCell);
       currentCell = '';
-      currentRow = [];
+    } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+      finishRow();
+      if (char === '\r' && csvContent[i + 1] === '\n') i++;
     } else {
-      // Continue to next line if inside quotes
-      currentCell += '\n';
+      currentCell += char;
     }
   }
 
-  // Add last row if exists
-  if (currentCell.length > 0 || currentRow.length > 0) {
-    currentRow.push(currentCell.trim());
-    if (currentRow.some(cell => cell.length > 0)) {
-      rows.push(currentRow);
-    }
-  }
-
+  if (insideQuotes) throw new Error('Unterminated quoted CSV field');
+  if (currentCell.length > 0 || currentRow.length > 0) finishRow();
   return rows;
 }
 
@@ -113,14 +92,14 @@ export function importPromptsFromCSV(
 
       try {
         const title = row[titleIndex]?.trim();
-        const content = row[contentIndex]?.trim();
+        const content = row[contentIndex];
         const categoryName = categoryIndex >= 0 ? row[categoryIndex]?.trim() : '';
         const tagsStr = tagsIndex >= 0 ? row[tagsIndex]?.trim() : '';
-        const isFavorite = favoriteIndex >= 0 ? row[favoriteIndex]?.toLowerCase() === 'yes' : false;
-        const isTemplate = isTemplateIndex >= 0 ? row[isTemplateIndex]?.toLowerCase() === 'yes' : false;
+        const isFavorite = favoriteIndex >= 0 ? row[favoriteIndex]?.trim().toLowerCase() === 'yes' : false;
+        const isTemplate = isTemplateIndex >= 0 ? row[isTemplateIndex]?.trim().toLowerCase() === 'yes' : false;
 
         // Validate required fields
-        if (!title || !content) {
+        if (!title || !content?.trim()) {
           warnings.push(`Row ${i + 1}: Skipped (missing title or content)`);
           continue;
         }
