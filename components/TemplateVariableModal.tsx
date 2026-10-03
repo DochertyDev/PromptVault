@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, Copy, AlertCircle } from 'lucide-react';
+import { extractVariables, renderTemplate } from '../utils/templateVariables';
 
 interface TemplateVariableModalProps {
   isOpen: boolean;
@@ -17,18 +18,19 @@ export function TemplateVariableModal({
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
 
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setVariables({});
+    setCopied(false);
+    return () => {
+      if (closeTimer.current !== null) clearTimeout(closeTimer.current);
+    };
+  }, [isOpen, content]);
+
   if (!isOpen) return null;
 
-  // Extract all {variableName} placeholders using regex
-  const placeholderRegex = /\{([^}]+)\}/g;
-  const extractedVars = new Set<string>();
-  let match;
-
-  while ((match = placeholderRegex.exec(content)) !== null) {
-    extractedVars.add(match[1]);
-  }
-
-  const varNames = Array.from(extractedVars);
+  const varNames = extractVariables(content);
 
   const handleUpdate = (varName: string, value: string) => {
     setVariables((prev) => ({
@@ -38,24 +40,12 @@ export function TemplateVariableModal({
   };
 
   const handleSubmit = () => {
-    let filledContent = content;
-
-    // Replace all {variable} with their values.
-    // Escape special regex characters in varName so names like
-    // "Topic 2 (optional)" don't break the pattern.
-    varNames.forEach((varName) => {
-      const value = variables[varName] || '';
-      const escapedVarName = varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      filledContent = filledContent.replace(
-        new RegExp(`\\{${escapedVarName}\\}`, 'g'),
-        value
-      );
-    });
+    const filledContent = renderTemplate(content, variables);
 
     // Copy to clipboard
     navigator.clipboard.writeText(filledContent).then(() => {
       setCopied(true);
-      setTimeout(() => {
+      closeTimer.current = setTimeout(() => {
         setCopied(false);
         onClose();
       }, 1500);
@@ -68,7 +58,7 @@ export function TemplateVariableModal({
     // Copy template without replacing variables
     navigator.clipboard.writeText(content).then(() => {
       setCopied(true);
-      setTimeout(() => {
+      closeTimer.current = setTimeout(() => {
         setCopied(false);
         onClose();
       }, 1500);
@@ -77,7 +67,7 @@ export function TemplateVariableModal({
     onSubmit(content);
   };
 
-  const allFilled = varNames.every((v) => variables[v]?.trim());
+  const allFilled = varNames.every((v) => Object.prototype.hasOwnProperty.call(variables, v) && variables[v].trim());
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -115,7 +105,7 @@ export function TemplateVariableModal({
                   </label>
                   <textarea
                     placeholder={`Enter ${varName}...`}
-                    value={variables[varName] || ''}
+                    value={Object.prototype.hasOwnProperty.call(variables, varName) ? variables[varName] : ''}
                     onChange={(e) => handleUpdate(varName, e.target.value)}
                     rows={4}
                     className="w-full bg-black-200 border border-black-300 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-y"
