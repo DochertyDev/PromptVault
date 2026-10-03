@@ -19,5 +19,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: node --test tests/markdown.test.mjs
+      - run: node --test tests/*.test.mjs
+      - run: npm test --if-present
+      - name: Storage regressions when available
+        run: |
+          if [ -f tests/storage.test.cjs ]; then
+            node --test tests/storage.test.cjs
+          fi
       - run: npm run build
