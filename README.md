@@ -171,6 +171,10 @@ PromptVault is a purely client-side application. It does not include a backend s
 
 ## ❓ Troubleshooting
 
+The app shows “Loading your vault…” until prompts, categories, workflows and steps
+finish loading, so edits cannot overwrite saved records with startup defaults.
+Contributors can run storage regressions with `node --test tests/storage.test.cjs`.
+
 This is a client-side, static web application with no complex dependencies or backend. Therefore, extensive troubleshooting is generally not required.
 
 **Issue**: Prompts, categories, or workflows disappear after clearing browser data.
